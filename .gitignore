@@ -1,81 +1,81 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+# Python相关文件
+__pycache__/              # Python编译缓存文件
+*.py[cod]                 # Python编译文件
+*$py.class               # Python字节码文件
+*.so                     # 编译后的C/C++扩展模块
+.Python                  # Python虚拟环境链接
+build/                   # 构建目录
+develop-eggs/            # 开发时的eggs目录
+dist/                    # 分发目录
+downloads/               # 下载目录
+eggs/                    # Python eggs
+.eggs/                  # Python eggs缓存
+lib/                    # 库文件目录
+lib64/                  # 64位库文件目录
+parts/                  # 组件目录
+sdist/                  # 源代码分发目录
+var/                    # 可变文件目录
+wheels/                 # Python wheels包
+*.egg-info/            # Python包元数据
+.installed.cfg         # buildout配置文件
+*.egg                  # Python eggs文件
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# Jupyter Notebook相关
+.ipynb_checkpoints      # Jupyter检查点文件
 
-# VS Code
-.vscode/
-*.code-workspace
+# VS Code相关
+.vscode/               # VS Code配置目录
+*.code-workspace       # VS Code工作区文件
 
-# PyCharm
-.idea/
-*.iml
-*.iws
-.idea_modules/
+# PyCharm相关
+.idea/                 # PyCharm配置目录
+*.iml                  # IntelliJ IDEA模块文件
+*.iws                  # IntelliJ IDEA工作区文件
+.idea_modules/         # IntelliJ IDEA模块目录
 
-# Environment
-.env
-.venv
-env/
-venv/
-ENV/
+# 环境相关
+.env                   # 环境变量文件
+.venv                  # 虚拟环境目录
+env/                   # 虚拟环境目录
+venv/                  # 虚拟环境目录
+ENV/                   # 虚拟环境目录
 
-# Data
-data/raw/*
-data/interim/*
-data/processed/*
-data/external/*
-!data/raw/.gitkeep
+# 数据文件
+data/raw/*             # 原始数据目录
+data/interim/*         # 中间数据目录
+data/processed/*       # 处理后的数据目录
+data/external/*        # 外部数据目录
+!data/raw/.gitkeep     # 保留空目录的占位文件
 !data/interim/.gitkeep
 !data/processed/.gitkeep
 !data/external/.gitkeep
 
-# Models
-models/trained/*
-models/pretrained/*
+# 模型文件
+models/trained/*       # 训练好的模型目录
+models/pretrained/*    # 预训练模型目录
 !models/trained/.gitkeep
 !models/pretrained/.gitkeep
 
-# Outputs
-outputs/*
+# 输出文件
+outputs/*             # 输出目录
 !outputs/.gitkeep
 
-# Experiments
-experiments/*/logs/*
-experiments/*/checkpoints/*
-experiments/*/metrics/*
+# 实验相关
+experiments/*/logs/*        # 实验日志目录
+experiments/*/checkpoints/* # 实验检查点目录
+experiments/*/metrics/*     # 实验指标目录
 !experiments/*/.gitkeep
 
-# Logs
-*.log
-logs/
-*.logs
+# 日志文件
+*.log                 # 日志文件
+logs/                 # 日志目录
+*.logs                # 日志文件
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db 
+# 操作系统生成的文件
+.DS_Store             # macOS目录元数据
+.DS_Store?            # macOS目录元数据
+._*                   # macOS资源分支文件
+.Spotlight-V100       # Spotlight索引文件
+.Trashes             # 废纸篓文件
+ehthumbs.db          # Windows缩略图缓存
+Thumbs.db            # Windows缩略图数据库
