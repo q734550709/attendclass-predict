@@ -1,0 +1,57 @@
+experiment:
+  name: "advanced_gradient_boosting"
+  description: "使用XGBoost的高级模型实验"
+  
+  # 模型配置
+  model:
+    type: "XGBoost"
+    params:
+      max_depth: 6
+      learning_rate: 0.01
+      n_estimators: 1000
+      min_child_weight: 1
+      gamma: 0
+      subsample: 0.8
+      colsample_bytree: 0.8
+      objective: 'binary:logistic'
+      random_state: 42
+      
+  # 特征工程配置
+  features:
+    student_history:
+      window_size: 60  # 增加历史窗口大小
+      aggregations: ["mean", "std", "max", "min", "median", "skew"]
+    temporal:
+      cyclical_encoding: true
+      add_holidays: true
+      add_weather: true  # 添加天气信息
+    interaction:
+      enable: true
+      max_degree: 2
+    
+  # 训练配置
+  training:
+    batch_size: 128
+    num_epochs: 200
+    learning_rate: 0.001
+    early_stopping:
+      patience: 15
+      min_delta: 0.0005
+    cross_validation:
+      enable: true
+      n_splits: 5
+      
+  # 评估配置
+  evaluation:
+    metrics: ["accuracy", "precision", "recall", "f1", "auc_roc", "average_precision"]
+    threshold_optimization:
+      enable: true
+      method: "f1"  # 基于F1分数优化阈值
+    
+  # 实验记录
+  logging:
+    save_model: true
+    save_predictions: true
+    save_feature_importance: true
+    save_cross_validation_results: true
+    save_learning_curves: true 

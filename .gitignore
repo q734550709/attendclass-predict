@@ -1,0 +1,81 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+.idea_modules/
+
+# Environment
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Data
+data/raw/*
+data/interim/*
+data/processed/*
+data/external/*
+!data/raw/.gitkeep
+!data/interim/.gitkeep
+!data/processed/.gitkeep
+!data/external/.gitkeep
+
+# Models
+models/trained/*
+models/pretrained/*
+!models/trained/.gitkeep
+!models/pretrained/.gitkeep
+
+# Outputs
+outputs/*
+!outputs/.gitkeep
+
+# Experiments
+experiments/*/logs/*
+experiments/*/checkpoints/*
+experiments/*/metrics/*
+!experiments/*/.gitkeep
+
+# Logs
+*.log
+logs/
+*.logs
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db 

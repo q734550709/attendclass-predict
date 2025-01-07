@@ -1,0 +1,27 @@
+data:
+  # 数据路径配置
+  paths:
+    raw: "data/raw"
+    interim: "data/interim"
+    processed: "data/processed"
+    external: "data/external"
+
+  # 数据集划分配置
+  split:
+    train_ratio: 0.7
+    val_ratio: 0.15
+    test_ratio: 0.15
+    random_state: 42
+
+  # 数据预处理配置
+  preprocessing:
+    scaling:
+      method: "standard"  # 标准化方法：standard/minmax/robust
+    encoding:
+      categorical: "one_hot"  # 分类特征编码方法
+      temporal: "cyclical"    # 时间特征编码方法
+
+  # 特征工程配置
+  feature_engineering:
+    history_window: 30  # 历史数据窗口大小
+    aggregation_methods: ["mean", "std", "max", "min"] 

@@ -1,0 +1,42 @@
+experiment:
+  name: "baseline_random_forest"
+  description: "基础随机森林模型实验"
+  
+  # 模型配置
+  model:
+    type: "RandomForest"
+    params:
+      n_estimators: 100
+      max_depth: 10
+      min_samples_split: 2
+      min_samples_leaf: 1
+      random_state: 42
+      
+  # 特征工程配置
+  features:
+    student_history:
+      window_size: 30
+      aggregations: ["mean", "std", "max", "min"]
+    temporal:
+      cyclical_encoding: true
+      add_holidays: true
+    
+  # 训练配置
+  training:
+    batch_size: 64
+    num_epochs: 100
+    learning_rate: 0.001
+    early_stopping:
+      patience: 10
+      min_delta: 0.001
+      
+  # 评估配置
+  evaluation:
+    metrics: ["accuracy", "precision", "recall", "f1", "auc_roc"]
+    threshold: 0.5
+    
+  # 实验记录
+  logging:
+    save_model: true
+    save_predictions: true
+    save_feature_importance: true 

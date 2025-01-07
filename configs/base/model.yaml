@@ -1,0 +1,23 @@
+model:
+  name: "AttendancePredictor"
+  type: "RandomForest"
+  params:
+    n_estimators: 100
+    max_depth: 10
+    min_samples_split: 2
+    min_samples_leaf: 1
+    random_state: 42
+
+  # 模型输入特征配置
+  features:
+    - name: "student_history"
+      type: "numerical"
+    - name: "course_info"
+      type: "categorical"
+    - name: "time_features"
+      type: "temporal"
+
+  # 模型输出配置
+  output:
+    type: "binary"
+    threshold: 0.5 
