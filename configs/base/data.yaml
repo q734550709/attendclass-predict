@@ -1,27 +1,2091 @@
-data:
-  # 数据路径配置
-  paths:
-    raw: "data/raw"
-    interim: "data/interim"
-    processed: "data/processed"
-    external: "data/external"
+# 数据文件路径配置
+paths:
+  raw: "../../data/raw/train_test_data"
+  interim: "../../data/interim"
+  processed: "../../data/processed"
+  external: "../../data/external"
 
-  # 数据集划分配置
-  split:
-    train_ratio: 0.7
-    val_ratio: 0.15
-    test_ratio: 0.15
-    random_state: 42
+# 标签列配置
+label_columns:
+  - if_join_class_next1
+  - if_join_class_next2
+  - if_join_class_next3
+  - if_join_class_next4
 
-  # 数据预处理配置
-  preprocessing:
-    scaling:
-      method: "standard"  # 标准化方法：standard/minmax/robust
-    encoding:
-      categorical: "one_hot"  # 分类特征编码方法
-      temporal: "cyclical"    # 时间特征编码方法
+# 分数据集配置
+split_data_config:
+  feature_drop_columns:
+  - '用户id'
+  - '未来课堂排名1是否参课'
+  - '未来课堂排名2是否参课'
+  - '未来课堂排名3是否参课'
+  - '未来课堂排名4是否参课'
+  is_train_label: "是否训练集"
+  y_label: "未来4次课堂是否有缺课"
 
-  # 特征工程配置
-  feature_engineering:
-    history_window: 30  # 历史数据窗口大小
-    aggregation_methods: ["mean", "std", "max", "min"] 
+# 输出文档配置
+output_config:
+  interim_file_name: "database_balanced"
+  process_file_name:
+    - "X_train"
+    - "X_test"
+    - "y_train"
+    - "y_test"
+
+# 数据处理配置
+data_processing_config:
+  chunk_size: 1000
+  sample_frac: 0.01
+  random_state: 42
+  test_size: 0.3
+  target_column: "label"
+  scaling:
+    normalization_map:
+      起始日期时间戳: 'min-max变换'
+      最近参课排名1距今天数: 'log 变换+标准化'
+      最近参课排名2距今天数: 'log 变换+标准化'
+      最近参课排名3距今天数: 'log 变换+标准化'
+      最近参课排名4距今天数: 'log 变换+标准化'
+      总下单金额: 'log 变换+标准化'
+      总下单次数: '标准化'
+      首单下单金额: '标准化'
+      首单下单课包: '标准化'
+      首单下单距今: '标准化'
+      最近一次下单金额: '标准化'
+      最近一次下单课包: '标准化'
+      最近下单距今: '标准化'
+      年龄: 'log 变换+标准化'
+      逻辑思维剩余课时: '标准化'
+      剩余火花币: 'log 变换+标准化'
+      兑换逻辑思维课时数量: 'min-max变换'
+      历史设备数量: 'log 变换+标准化'
+      入学时长: 'robustscaler变换'
+      首次入学年级: '标准化'
+      历史在班年级数: 'min-max变换'
+      历史在班天数: 'robustscaler变换'
+      最近班级在班天数: 'robustscaler变换'
+      最近连续在班天数: 'robustscaler变换'
+      历史最长连续在班天数: 'robustscaler变换'
+      换班次数: 'log 变换+标准化'
+      换LA次数: 'log 变换+标准化'
+      换教师次数: 'log 变换+标准化'
+      换班型次数: 'min-max变换'
+      换档期次数: 'log 变换+标准化'
+      入学测距今时长: 'min-max变换'
+      入学测末答正确率: '标准化'
+      入学测末答时长: 'log 变换+标准化'
+      最近一次专题测距今时长: 'log 变换+标准化'
+      最近一次专题测答题次数: 'log 变换+标准化'
+      最近专题测首答正确率: '数据平移+log 变换+标准化'
+      最近专题测首答时长: '数据平移+log 变换+标准化'
+      历史逻辑思维课消次数: 'min-max变换'
+      历史逻辑思维请假次数: 'log 变换+标准化'
+      剩余逻辑思维请假次数: 'log 变换+标准化'
+      历史休学次数: 'log 变换+标准化'
+      历史休学时长: '数据平移+log 变换+标准化'
+      缺课次数: 'log 变换+标准化'
+      最近一次缺课距今: '数据平移+log 变换+标准化'
+      补课率: '数据平移+log 变换+标准化'
+      3天内补课率: 'min-max变换'
+      直播补课率: '数据平移+log 变换+标准化'
+      互动自学补课率: '数据平移+log 变换+标准化'
+      教师年龄_one: '标准化'
+      教师公司司龄_one: '标准化'
+      教师带系统课天数_one: '标准化'
+      教师当前班级数_one: '标准化'
+      教师当前学生数_one: '标准化'
+      教师满座率: '标准化'
+      教师历史年级数_one: 'min-max变换'
+      教师历史班级数_one: '标准化'
+      教师历史学生数_one: '标准化'
+      教师历史课次数_one: '标准化'
+      教师历史课堂数_one: '标准化'
+      LA年龄: '标准化'
+      LA公司司龄: '标准化'
+      LA当前学生数: '标准化'
+      班级男生数量_one: '标准化'
+      班级女生数量_one: '标准化'
+      班级档期小时一_one: 'min-max变换'
+      班级档期小时二_one: 'min-max变换'
+      学员提前时长_rk1: '数据平移+log 变换+标准化'
+      学员迟到时长_rk1: '数据平移+log 变换+标准化'
+      教师提前时长_rk1: '数据平移+log 变换+标准化'
+      教师迟到时长_rk1: 'min-max变换'
+      课前互动时长_rk1: '数据平移+log 变换+标准化'
+      教师本课次培训视频观看次数_rk1: 'log 变换+标准化'
+      教师本课次培训视频观看时长_rk1: 'log 变换+标准化'
+      教师本课次上课次数_rk1: '标准化'
+      教师本课次上课学员数_rk1: 'min-max变换'
+      平均单课次上课时长_rk1: '标准化'
+      教学模式例题回答题目数_rk1: '标准化'
+      教学模式例题回答题目次数_rk1: '标准化'
+      教学模式例题答题时长_rk1: 'log 变换+标准化'
+      教学模式例题答题最大时长_rk1: 'log 变换+标准化'
+      教学模式例题答题最小时长_rk1: 'log 变换+标准化'
+      例题回答题目数_rk1: '标准化'
+      例题回答正确题目数_rk1: '标准化'
+      例题回答次数_rk1: 'log 变换+标准化'
+      例题答题时长_rk1: '数据平移+log 变换+标准化'
+      例题答题最大时长_rk1: '数据平移+log 变换+标准化'
+      例题答题最小时长_rk1: '数据平移+log 变换+标准化'
+      例题私麦题目数_rk1: 'log 变换+标准化'
+      例题私麦次数_rk1: 'log 变换+标准化'
+      例题私麦时长_rk1: 'log 变换+标准化'
+      例题私麦最大时长_rk1: 'log 变换+标准化'
+      例题私麦最小时长_rk1: 'log 变换+标准化'
+      练习题回答题目数_rk1: '标准化'
+      练习题回答正确题目数_rk1: '标准化'
+      练习题回答次数_rk1: 'log 变换+标准化'
+      练习题答题时长_rk1: '数据平移+log 变换+标准化'
+      练习题答题最大时长_rk1: '数据平移+log 变换+标准化'
+      练习题答题最小时长_rk1: '数据平移+log 变换+标准化'
+      练习题私麦题目数_rk1: 'log 变换+标准化'
+      练习题私麦次数_rk1: 'log 变换+标准化'
+      练习题私麦时长_rk1: 'log 变换+标准化'
+      练习题私麦最大时长_rk1: 'log 变换+标准化'
+      练习题私麦最小时长_rk1: 'log 变换+标准化'
+      挑战题回答题目数_rk1: '标准化'
+      挑战题回答正确题目数_rk1: '标准化'
+      挑战题回答次数_rk1: 'log 变换+标准化'
+      挑战题答题时长_rk1: '数据平移+log 变换+标准化'
+      挑战题答题最大时长_rk1: '数据平移+log 变换+标准化'
+      挑战题答题最小时长_rk1: '数据平移+log 变换+标准化'
+      挑战题私麦题目数_rk1: 'log 变换+标准化'
+      挑战题私麦次数_rk1: 'log 变换+标准化'
+      挑战题私麦时长_rk1: 'log 变换+标准化'
+      挑战题私麦最大时长_rk1: 'log 变换+标准化'
+      挑战题私麦最小时长_rk1: 'log 变换+标准化'
+      上台时长_rk1: '数据平移+log 变换+标准化'
+      上台次数_rk1: '数据平移+log 变换+标准化'
+      火花秘籍提交天数_rk1: 'log 变换+标准化'
+      在线火花秘籍首答正确率_rk1: 'min-max变换'
+      在线火花秘籍首答用时_rk1: '数据平移+log 变换+标准化'
+      小老师视频提交天数_rk1: '数据平移+log 变换+标准化'
+      学员提前时长_rk2: '数据平移+log 变换+标准化'
+      学员迟到时长_rk2: '数据平移+log 变换+标准化'
+      教师提前时长_rk2: '数据平移+log 变换+标准化'
+      教师迟到时长_rk2: 'min-max变换'
+      课前互动时长_rk2: '数据平移+log 变换+标准化'
+      教师本课次培训视频观看次数_rk2: 'log 变换+标准化'
+      教师本课次培训视频观看时长_rk2: 'log 变换+标准化'
+      教师本课次上课次数_rk2: '标准化'
+      教师本课次上课学员数_rk2: 'min-max变换'
+      平均单课次上课时长_rk2: '标准化'
+      教学模式例题回答题目数_rk2: '标准化'
+      教学模式例题回答题目次数_rk2: '标准化'
+      教学模式例题答题时长_rk2: 'log 变换+标准化'
+      教学模式例题答题最大时长_rk2: 'log 变换+标准化'
+      教学模式例题答题最小时长_rk2: 'log 变换+标准化'
+      例题回答题目数_rk2: '标准化'
+      例题回答正确题目数_rk2: '标准化'
+      例题回答次数_rk2: 'log 变换+标准化'
+      例题答题时长_rk2: '数据平移+log 变换+标准化'
+      例题答题最大时长_rk2: '数据平移+log 变换+标准化'
+      例题答题最小时长_rk2: '数据平移+log 变换+标准化'
+      例题私麦题目数_rk2: 'log 变换+标准化'
+      例题私麦次数_rk2: 'log 变换+标准化'
+      例题私麦时长_rk2: 'log 变换+标准化'
+      例题私麦最大时长_rk2: 'log 变换+标准化'
+      例题私麦最小时长_rk2: 'log 变换+标准化'
+      练习题回答题目数_rk2: '标准化'
+      练习题回答正确题目数_rk2: '标准化'
+      练习题回答次数_rk2: 'log 变换+标准化'
+      练习题答题时长_rk2: '数据平移+log 变换+标准化'
+      练习题答题最大时长_rk2: '数据平移+log 变换+标准化'
+      练习题答题最小时长_rk2: '数据平移+log 变换+标准化'
+      练习题私麦题目数_rk2: 'log 变换+标准化'
+      练习题私麦次数_rk2: 'log 变换+标准化'
+      练习题私麦时长_rk2: 'log 变换+标准化'
+      练习题私麦最大时长_rk2: 'log 变换+标准化'
+      练习题私麦最小时长_rk2: 'log 变换+标准化'
+      挑战题回答题目数_rk2: '标准化'
+      挑战题回答正确题目数_rk2: '标准化'
+      挑战题回答次数_rk2: 'log 变换+标准化'
+      挑战题答题时长_rk2: '数据平移+log 变换+标准化'
+      挑战题答题最大时长_rk2: '数据平移+log 变换+标准化'
+      挑战题答题最小时长_rk2: '数据平移+log 变换+标准化'
+      挑战题私麦题目数_rk2: 'log 变换+标准化'
+      挑战题私麦次数_rk2: 'log 变换+标准化'
+      挑战题私麦时长_rk2: 'log 变换+标准化'
+      挑战题私麦最大时长_rk2: 'log 变换+标准化'
+      挑战题私麦最小时长_rk2: 'log 变换+标准化'
+      上台时长_rk2: '数据平移+log 变换+标准化'
+      上台次数_rk2: '数据平移+log 变换+标准化'
+      火花秘籍提交天数_rk2: 'log 变换+标准化'
+      在线火花秘籍首答正确率_rk2: 'min-max变换'
+      在线火花秘籍首答用时_rk2: '数据平移+log 变换+标准化'
+      小老师视频提交天数_rk2: '数据平移+log 变换+标准化'
+      学员提前时长_rk3: '数据平移+log 变换+标准化'
+      学员迟到时长_rk3: '数据平移+log 变换+标准化'
+      教师提前时长_rk3: '数据平移+log 变换+标准化'
+      教师迟到时长_rk3: 'min-max变换'
+      课前互动时长_rk3: '数据平移+log 变换+标准化'
+      教师本课次培训视频观看次数_rk3: 'log 变换+标准化'
+      教师本课次培训视频观看时长_rk3: 'log 变换+标准化'
+      教师本课次上课次数_rk3: '标准化'
+      教师本课次上课学员数_rk3: 'min-max变换'
+      平均单课次上课时长_rk3: '标准化'
+      教学模式例题回答题目数_rk3: '标准化'
+      教学模式例题回答题目次数_rk3: '标准化'
+      教学模式例题答题时长_rk3: 'log 变换+标准化'
+      教学模式例题答题最大时长_rk3: 'log 变换+标准化'
+      教学模式例题答题最小时长_rk3: 'log 变换+标准化'
+      例题回答题目数_rk3: '标准化'
+      例题回答正确题目数_rk3: '标准化'
+      例题回答次数_rk3: 'log 变换+标准化'
+      例题答题时长_rk3: '数据平移+log 变换+标准化'
+      例题答题最大时长_rk3: '数据平移+log 变换+标准化'
+      例题答题最小时长_rk3: '数据平移+log 变换+标准化'
+      例题私麦题目数_rk3: 'log 变换+标准化'
+      例题私麦次数_rk3: 'log 变换+标准化'
+      例题私麦时长_rk3: 'log 变换+标准化'
+      例题私麦最大时长_rk3: 'log 变换+标准化'
+      例题私麦最小时长_rk3: 'log 变换+标准化'
+      练习题回答题目数_rk3: '标准化'
+      练习题回答正确题目数_rk3: '标准化'
+      练习题回答次数_rk3: 'log 变换+标准化'
+      练习题答题时长_rk3: '数据平移+log 变换+标准化'
+      练习题答题最大时长_rk3: '数据平移+log 变换+标准化'
+      练习题答题最小时长_rk3: '数据平移+log 变换+标准化'
+      练习题私麦题目数_rk3: 'log 变换+标准化'
+      练习题私麦次数_rk3: 'log 变换+标准化'
+      练习题私麦时长_rk3: 'log 变换+标准化'
+      练习题私麦最大时长_rk3: 'log 变换+标准化'
+      练习题私麦最小时长_rk3: 'log 变换+标准化'
+      挑战题回答题目数_rk3: '标准化'
+      挑战题回答正确题目数_rk3: '标准化'
+      挑战题回答次数_rk3: 'log 变换+标准化'
+      挑战题答题时长_rk3: '数据平移+log 变换+标准化'
+      挑战题答题最大时长_rk3: '数据平移+log 变换+标准化'
+      挑战题答题最小时长_rk3: '数据平移+log 变换+标准化'
+      挑战题私麦题目数_rk3: 'log 变换+标准化'
+      挑战题私麦次数_rk3: 'log 变换+标准化'
+      挑战题私麦时长_rk3: 'log 变换+标准化'
+      挑战题私麦最大时长_rk3: 'log 变换+标准化'
+      挑战题私麦最小时长_rk3: 'log 变换+标准化'
+      上台时长_rk3: '数据平移+log 变换+标准化'
+      上台次数_rk3: '数据平移+log 变换+标准化'
+      火花秘籍提交天数_rk3: 'log 变换+标准化'
+      在线火花秘籍首答正确率_rk3: 'min-max变换'
+      在线火花秘籍首答用时_rk3: '数据平移+log 变换+标准化'
+      小老师视频提交天数_rk3: '数据平移+log 变换+标准化'
+      学员提前时长_rk4: '数据平移+log 变换+标准化'
+      学员迟到时长_rk4: '数据平移+log 变换+标准化'
+      教师提前时长_rk4: '数据平移+log 变换+标准化'
+      教师迟到时长_rk4: 'min-max变换'
+      课前互动时长_rk4: '数据平移+log 变换+标准化'
+      教师本课次培训视频观看次数_rk4: 'log 变换+标准化'
+      教师本课次培训视频观看时长_rk4: 'log 变换+标准化'
+      教师本课次上课次数_rk4: '标准化'
+      教师本课次上课学员数_rk4: 'min-max变换'
+      平均单课次上课时长_rk4: '标准化'
+      教学模式例题回答题目数_rk4: '标准化'
+      教学模式例题回答题目次数_rk4: '标准化'
+      教学模式例题答题时长_rk4: 'log 变换+标准化'
+      教学模式例题答题最大时长_rk4: 'log 变换+标准化'
+      教学模式例题答题最小时长_rk4: 'log 变换+标准化'
+      例题回答题目数_rk4: '标准化'
+      例题回答正确题目数_rk4: '标准化'
+      例题回答次数_rk4: 'log 变换+标准化'
+      例题答题时长_rk4: '数据平移+log 变换+标准化'
+      例题答题最大时长_rk4: '数据平移+log 变换+标准化'
+      例题答题最小时长_rk4: '数据平移+log 变换+标准化'
+      例题私麦题目数_rk4: 'log 变换+标准化'
+      例题私麦次数_rk4: 'log 变换+标准化'
+      例题私麦时长_rk4: 'log 变换+标准化'
+      例题私麦最大时长_rk4: 'log 变换+标准化'
+      例题私麦最小时长_rk4: 'log 变换+标准化'
+      练习题回答题目数_rk4: '标准化'
+      练习题回答正确题目数_rk4: '标准化'
+      练习题回答次数_rk4: 'log 变换+标准化'
+      练习题答题时长_rk4: '数据平移+log 变换+标准化'
+      练习题答题最大时长_rk4: '数据平移+log 变换+标准化'
+      练习题答题最小时长_rk4: '数据平移+log 变换+标准化'
+      练习题私麦题目数_rk4: 'log 变换+标准化'
+      练习题私麦次数_rk4: 'log 变换+标准化'
+      练习题私麦时长_rk4: 'log 变换+标准化'
+      练习题私麦最大时长_rk4: 'log 变换+标准化'
+      练习题私麦最小时长_rk4: 'log 变换+标准化'
+      挑战题回答题目数_rk4: '标准化'
+      挑战题回答正确题目数_rk4: '标准化'
+      挑战题回答次数_rk4: 'log 变换+标准化'
+      挑战题答题时长_rk4: '数据平移+log 变换+标准化'
+      挑战题答题最大时长_rk4: '数据平移+log 变换+标准化'
+      挑战题答题最小时长_rk4: '数据平移+log 变换+标准化'
+      挑战题私麦题目数_rk4: 'log 变换+标准化'
+      挑战题私麦次数_rk4: 'log 变换+标准化'
+      挑战题私麦时长_rk4: 'log 变换+标准化'
+      挑战题私麦最大时长_rk4: 'log 变换+标准化'
+      挑战题私麦最小时长_rk4: 'log 变换+标准化'
+      上台时长_rk4: '数据平移+log 变换+标准化'
+      上台次数_rk4: '数据平移+log 变换+标准化'
+      火花秘籍提交天数_rk4: 'log 变换+标准化'
+      在线火花秘籍首答正确率_rk4: 'min-max变换'
+      在线火花秘籍首答用时_rk4: '数据平移+log 变换+标准化'
+      小老师视频提交天数_rk4: '数据平移+log 变换+标准化'
+      LA单聊沟通次数: '数据平移+log 变换+标准化'
+      LA文字单聊沟通次数: '数据平移+log 变换+标准化'
+      LA文字单聊沟通字数: '数据平移+log 变换+标准化'
+      LA图片单聊沟通次数: '数据平移+log 变换+标准化'
+      LA是否主动单聊沟通: 'log 变换+标准化'
+      LA单聊关键词命中次数: '数据平移+log 变换+标准化'
+      教师单聊沟通次数: '数据平移+log 变换+标准化'
+      教师文字单聊沟通次数: '数据平移+log 变换+标准化'
+      教师文字单聊沟通字数: '数据平移+log 变换+标准化'
+      教师图片单聊沟通次数: '数据平移+log 变换+标准化'
+      教师是否主动单聊沟通: 'log 变换+标准化'
+      教师单聊关键词命中次数: '数据平移+log 变换+标准化'
+      用户单聊次数: '数据平移+log 变换+标准化'
+      用户文字单聊沟通次数: '数据平移+log 变换+标准化'
+      用户文字单聊沟通字数: '数据平移+log 变换+标准化'
+      用户图片单聊沟通次数: '数据平移+log 变换+标准化'
+      用户是否主动单聊沟通: 'log 变换+标准化'
+      用户单聊关键词命中次数: '数据平移+log 变换+标准化'
+      LA群聊沟通次数: '数据平移+log 变换+标准化'
+      LA文字群聊沟通次数: '数据平移+log 变换+标准化'
+      LA文字群聊沟通字数: '数据平移+log 变换+标准化'
+      LA图片群聊沟通次数: '数据平移+log 变换+标准化'
+      LA是否主动群聊沟通: 'log 变换+标准化'
+      LA群聊关键词命中次数: '数据平移+log 变换+标准化'
+      教师群聊沟通次数: '数据平移+log 变换+标准化'
+      教师文字群聊沟通次数: '数据平移+log 变换+标准化'
+      教师文字群聊沟通字数: '数据平移+log 变换+标准化'
+      教师图片群聊沟通次数: '数据平移+log 变换+标准化'
+      教师是否主动群聊沟通: 'log 变换+标准化'
+      教师群聊关键词命中次数: '数据平移+log 变换+标准化'
+      用户群聊次数: '数据平移+log 变换+标准化'
+      用户文字群聊沟通次数: '数据平移+log 变换+标准化'
+      用户文字群聊沟通字数: '数据平移+log 变换+标准化'
+      用户图片群聊沟通次数: '数据平移+log 变换+标准化'
+      用户是否主动群聊沟通: 'log 变换+标准化'
+      用户群聊关键词命中次数: '数据平移+log 变换+标准化'
+
+
+# 读取列选择配置
+columns_to_read:
+- t.from_date
+- t.user_id
+- t.date_diff_rk1
+- t.date_diff_rk2
+- t.date_diff_rk3
+- t.date_diff_rk4
+- t.date_year
+- t.date_month
+- t.holiday_month
+- t.dateofweeknum
+- t.total_order_amount
+- t.total_order_count
+- t.total_refund_count
+- t.first_order_direct_sign
+- t.first_order_matrix_first
+- t.first_order_amount
+- t.first_order_hours
+- t.first_order_during
+- t.recent_order_category
+- t.recent_order_amount
+- t.recent_order_hours
+- t.recent_order_during
+- t.user_age
+- t.user_city_level
+- t.user_status
+- t.math_left_hours
+- t.left_coins
+- t.exchange_math_hours
+- t.recent_platform_type
+- t.device_count
+- t.common_platform_type
+- t.attend_class_during
+- t.first_attend_level
+- t.first_attend_class_level
+- t.level_count_history
+- t.inclass_during
+- t.recent_class_during
+- t.recent_contiue_inclass_during
+- t.inclass_during_history
+- t.change_class_count
+- t.change_la_count
+- t.change_teacher_count
+- t.change_class_level_count
+- t.change_schedule_count
+- t.join_paper_during
+- t.join_paper_last_count
+- t.join_paper_last_rightcount
+- t.join_paper_last_duration
+- t.recent_phasetest_during
+- t.recent_phasetest_count
+- t.recent_phasetest_first_count
+- t.recent_phasetest_first_rightcount
+- t.recent_phasetest_first_duration
+- t.history_math_lesson_count
+- t.history_math_vacate_count
+- t.left_math_vacate_count
+- t.history_suspension_count
+- t.history_suspension_duration
+- t.absent_lesson_count
+- t.recent_absent_during
+- t.makeup_count
+- t.makeup_three_count
+- t.classroom_makeup_count
+- t.selfstudy_makeup_count
+- t.teacher_one_sex
+- t.teacher_one_age
+- t.teacher_one_city_level
+- t.teacher_one_company_age
+- t.teacher_one_lesson_during
+- t.teacher_one_nature_of_work
+- t.teacher_one_job_type
+- t.teacher_one_class_count
+- t.teacher_one_student_count
+- t.teacher_one_max_student_count
+- t.teacher_one_history_level_count
+- t.teacher_one_history_class_count
+- t.teacher_one_history_student_count
+- t.teacher_one_history_lesson_count
+- t.teacher_one_history_classroom_count
+- t.la_sex
+- t.la_age
+- t.la_company_age
+- t.la_user_count
+- t.class_one_student_max
+- t.class_one_student_count
+- t.class_one_boy_count
+- t.class_one_gril_count
+- t.class_one_union_flag
+- t.class_one_classes_level
+- t.class_one_schedule_dateone
+- t.class_one_schedule_hourone
+- t.class_one_schedule_datetwo
+- t.class_one_schedule_hourtwo
+- t.class_one_overseas_tag
+- t.class_one_train_num
+- t.class_one_course_level
+- t.class_two_id
+- t.student_attend_status_rk1
+- t.student_preview_rk1
+- t.student_ontime_rk1
+- t.student_ahead_during_rk1
+- t.student_late_during_rk1
+- t.teacher_ontime_rk1
+- t.teacher_ahead_during_rk1
+- t.teacher_late_during_rk1
+- t.teacher_pre_interactive_during_rk1
+- t.teacher_prepare_task_finish_rk1
+- t.training_video_watch_count_rk1
+- t.training_video_watch_duration_rk1
+- t.before_teach_count_rk1
+- t.before_teach_student_count_rk1
+- t.before_teach_during_rk1
+- t.teachmode_example_answer_num_rk1
+- t.teachmode_example_answer_count_rk1
+- t.teachmode_example_answer_during_rk1
+- t.teachmode_example_answer_max_during_rk1
+- t.teachmode_example_answer_min_during_rk1
+- t.example_answer_num_rk1
+- t.example_answer_right_count_rk1
+- t.example_answer_count_rk1
+- t.example_answer_during_rk1
+- t.example_answer_max_during_rk1
+- t.example_answer_min_during_rk1
+- t.example_whisper_num_rk1
+- t.example_whisper_count_rk1
+- t.example_whisper_during_rk1
+- t.example_whisper_max_during_rk1
+- t.example_whisper_min_during_rk1
+- t.practice_answer_num_rk1
+- t.practice_answer_right_count_rk1
+- t.practice_answer_count_rk1
+- t.practice_answer_during_rk1
+- t.practice_answer_max_during_rk1
+- t.practice_answer_min_during_rk1
+- t.practice_whisper_num_rk1
+- t.practice_whisper_count_rk1
+- t.practice_whisper_during_rk1
+- t.practice_whisper_max_during_rk1
+- t.practice_whisper_min_during_rk1
+- t.challenge_answer_num_rk1
+- t.challenge_answer_right_count_rk1
+- t.challenge_answer_count_rk1
+- t.challenge_answer_during_rk1
+- t.challenge_answer_max_during_rk1
+- t.challenge_answer_min_during_rk1
+- t.challenge_whisper_num_rk1
+- t.challenge_whisper_count_rk1
+- t.challenge_whisper_during_rk1
+- t.challenge_whisper_max_during_rk1
+- t.challenge_whisper_min_during_rk1
+- t.onstage_during_rk1
+- t.onstage_count_rk1
+- t.homework_submit_count_rk1
+- t.homework_submit_during_rk1
+- t.online_homework_question_num_rk1
+- t.online_homework_first_right_num_rk1
+- t.online_homework_first_duration_rk1
+- t.online_homework_if_lastanswer_rk1
+- t.little_teacher_video_submit_count_rk1
+- t.little_teacher_video_during_rk1
+- t.student_attend_status_rk2
+- t.student_preview_rk2
+- t.student_ontime_rk2
+- t.student_ahead_during_rk2
+- t.student_late_during_rk2
+- t.teacher_ontime_rk2
+- t.teacher_ahead_during_rk2
+- t.teacher_late_during_rk2
+- t.teacher_pre_interactive_during_rk2
+- t.teacher_prepare_task_finish_rk2
+- t.training_video_watch_count_rk2
+- t.training_video_watch_duration_rk2
+- t.before_teach_count_rk2
+- t.before_teach_student_count_rk2
+- t.before_teach_during_rk2
+- t.teachmode_example_answer_num_rk2
+- t.teachmode_example_answer_count_rk2
+- t.teachmode_example_answer_during_rk2
+- t.teachmode_example_answer_max_during_rk2
+- t.teachmode_example_answer_min_during_rk2
+- t.example_answer_num_rk2
+- t.example_answer_right_count_rk2
+- t.example_answer_count_rk2
+- t.example_answer_during_rk2
+- t.example_answer_max_during_rk2
+- t.example_answer_min_during_rk2
+- t.example_whisper_num_rk2
+- t.example_whisper_count_rk2
+- t.example_whisper_during_rk2
+- t.example_whisper_max_during_rk2
+- t.example_whisper_min_during_rk2
+- t.practice_answer_num_rk2
+- t.practice_answer_right_count_rk2
+- t.practice_answer_count_rk2
+- t.practice_answer_during_rk2
+- t.practice_answer_max_during_rk2
+- t.practice_answer_min_during_rk2
+- t.practice_whisper_num_rk2
+- t.practice_whisper_count_rk2
+- t.practice_whisper_during_rk2
+- t.practice_whisper_max_during_rk2
+- t.practice_whisper_min_during_rk2
+- t.challenge_answer_num_rk2
+- t.challenge_answer_right_count_rk2
+- t.challenge_answer_count_rk2
+- t.challenge_answer_during_rk2
+- t.challenge_answer_max_during_rk2
+- t.challenge_answer_min_during_rk2
+- t.challenge_whisper_num_rk2
+- t.challenge_whisper_count_rk2
+- t.challenge_whisper_during_rk2
+- t.challenge_whisper_max_during_rk2
+- t.challenge_whisper_min_during_rk2
+- t.onstage_during_rk2
+- t.onstage_count_rk2
+- t.homework_submit_count_rk2
+- t.homework_submit_during_rk2
+- t.online_homework_question_num_rk2
+- t.online_homework_first_right_num_rk2
+- t.online_homework_first_duration_rk2
+- t.online_homework_if_lastanswer_rk2
+- t.little_teacher_video_submit_count_rk2
+- t.little_teacher_video_during_rk2
+- t.student_attend_status_rk3
+- t.student_preview_rk3
+- t.student_ontime_rk3
+- t.student_ahead_during_rk3
+- t.student_late_during_rk3
+- t.teacher_ontime_rk3
+- t.teacher_ahead_during_rk3
+- t.teacher_late_during_rk3
+- t.teacher_pre_interactive_during_rk3
+- t.teacher_prepare_task_finish_rk3
+- t.training_video_watch_count_rk3
+- t.training_video_watch_duration_rk3
+- t.before_teach_count_rk3
+- t.before_teach_student_count_rk3
+- t.before_teach_during_rk3
+- t.teachmode_example_answer_num_rk3
+- t.teachmode_example_answer_count_rk3
+- t.teachmode_example_answer_during_rk3
+- t.teachmode_example_answer_max_during_rk3
+- t.teachmode_example_answer_min_during_rk3
+- t.example_answer_num_rk3
+- t.example_answer_right_count_rk3
+- t.example_answer_count_rk3
+- t.example_answer_during_rk3
+- t.example_answer_max_during_rk3
+- t.example_answer_min_during_rk3
+- t.example_whisper_num_rk3
+- t.example_whisper_count_rk3
+- t.example_whisper_during_rk3
+- t.example_whisper_max_during_rk3
+- t.example_whisper_min_during_rk3
+- t.practice_answer_num_rk3
+- t.practice_answer_right_count_rk3
+- t.practice_answer_count_rk3
+- t.practice_answer_during_rk3
+- t.practice_answer_max_during_rk3
+- t.practice_answer_min_during_rk3
+- t.practice_whisper_num_rk3
+- t.practice_whisper_count_rk3
+- t.practice_whisper_during_rk3
+- t.practice_whisper_max_during_rk3
+- t.practice_whisper_min_during_rk3
+- t.challenge_answer_num_rk3
+- t.challenge_answer_right_count_rk3
+- t.challenge_answer_count_rk3
+- t.challenge_answer_during_rk3
+- t.challenge_answer_max_during_rk3
+- t.challenge_answer_min_during_rk3
+- t.challenge_whisper_num_rk3
+- t.challenge_whisper_count_rk3
+- t.challenge_whisper_during_rk3
+- t.challenge_whisper_max_during_rk3
+- t.challenge_whisper_min_during_rk3
+- t.onstage_during_rk3
+- t.onstage_count_rk3
+- t.homework_submit_count_rk3
+- t.homework_submit_during_rk3
+- t.online_homework_question_num_rk3
+- t.online_homework_first_right_num_rk3
+- t.online_homework_first_duration_rk3
+- t.online_homework_if_lastanswer_rk3
+- t.little_teacher_video_submit_count_rk3
+- t.little_teacher_video_during_rk3
+- t.student_attend_status_rk4
+- t.student_preview_rk4
+- t.student_ontime_rk4
+- t.student_ahead_during_rk4
+- t.student_late_during_rk4
+- t.teacher_ontime_rk4
+- t.teacher_ahead_during_rk4
+- t.teacher_late_during_rk4
+- t.teacher_pre_interactive_during_rk4
+- t.teacher_prepare_task_finish_rk4
+- t.training_video_watch_count_rk4
+- t.training_video_watch_duration_rk4
+- t.before_teach_count_rk4
+- t.before_teach_student_count_rk4
+- t.before_teach_during_rk4
+- t.teachmode_example_answer_num_rk4
+- t.teachmode_example_answer_count_rk4
+- t.teachmode_example_answer_during_rk4
+- t.teachmode_example_answer_max_during_rk4
+- t.teachmode_example_answer_min_during_rk4
+- t.example_answer_num_rk4
+- t.example_answer_right_count_rk4
+- t.example_answer_count_rk4
+- t.example_answer_during_rk4
+- t.example_answer_max_during_rk4
+- t.example_answer_min_during_rk4
+- t.example_whisper_num_rk4
+- t.example_whisper_count_rk4
+- t.example_whisper_during_rk4
+- t.example_whisper_max_during_rk4
+- t.example_whisper_min_during_rk4
+- t.practice_answer_num_rk4
+- t.practice_answer_right_count_rk4
+- t.practice_answer_count_rk4
+- t.practice_answer_during_rk4
+- t.practice_answer_max_during_rk4
+- t.practice_answer_min_during_rk4
+- t.practice_whisper_num_rk4
+- t.practice_whisper_count_rk4
+- t.practice_whisper_during_rk4
+- t.practice_whisper_max_during_rk4
+- t.practice_whisper_min_during_rk4
+- t.challenge_answer_num_rk4
+- t.challenge_answer_right_count_rk4
+- t.challenge_answer_count_rk4
+- t.challenge_answer_during_rk4
+- t.challenge_answer_max_during_rk4
+- t.challenge_answer_min_during_rk4
+- t.challenge_whisper_num_rk4
+- t.challenge_whisper_count_rk4
+- t.challenge_whisper_during_rk4
+- t.challenge_whisper_max_during_rk4
+- t.challenge_whisper_min_during_rk4
+- t.onstage_during_rk4
+- t.onstage_count_rk4
+- t.homework_submit_count_rk4
+- t.homework_submit_during_rk4
+- t.online_homework_question_num_rk4
+- t.online_homework_first_right_num_rk4
+- t.online_homework_first_duration_rk4
+- t.online_homework_if_lastanswer_rk4
+- t.little_teacher_video_submit_count_rk4
+- t.little_teacher_video_during_rk4
+- t.la_singlechat_count
+- t.la_text_singlechat_count
+- t.la_text_singlechat_length
+- t.la_image_singlechat_count
+- t.la_if_active_singlechat
+- t.la_singlechat_vacate_count
+- t.la_singlechat_makeup_count
+- t.la_singlechat_suspend_count
+- t.la_singlechat_suspension_count
+- t.la_singlechat_sick_count
+- t.la_singlechat_changeclass_count
+- t.teacher_singlechat_count
+- t.teacher_text_singlechat_count
+- t.teacher_text_singlechat_length
+- t.teacher_image_singlechat_count
+- t.teacher_if_active_singlechat
+- t.teacher_singlechat_vacate_count
+- t.teacher_singlechat_makeup_count
+- t.teacher_singlechat_suspend_count
+- t.teacher_singlechat_suspension_count
+- t.teacher_singlechat_sick_count
+- t.teacher_singlechat_changeclass_count
+- t.user_singlechat_count
+- t.user_text_singlechat_count
+- t.user_text_singlechat_length
+- t.user_image_singlechat_count
+- t.user_if_active_singlechat
+- t.user_singlechat_vacate_count
+- t.user_singlechat_makeup_count
+- t.user_singlechat_suspend_count
+- t.user_singlechat_suspension_count
+- t.user_singlechat_sick_count
+- t.user_singlechat_changeclass_count
+- t.la_groupchat_count
+- t.la_text_groupchat_count
+- t.la_text_groupchat_length
+- t.la_image_groupchat_count
+- t.la_if_active_groupchat
+- t.la_groupchat_vacate_count
+- t.la_groupchat_makeup_count
+- t.la_groupchat_suspend_count
+- t.la_groupchat_suspension_count
+- t.la_groupchat_sick_count
+- t.la_groupchat_changeclass_count
+- t.teacher_groupchat_count
+- t.teacher_text_groupchat_count
+- t.teacher_text_groupchat_length
+- t.teacher_image_groupchat_count
+- t.teacher_if_active_groupchat
+- t.teacher_groupchat_vacate_count
+- t.teacher_groupchat_makeup_count
+- t.teacher_groupchat_suspend_count
+- t.teacher_groupchat_suspension_count
+- t.teacher_groupchat_sick_count
+- t.teacher_groupchat_changeclass_count
+- t.user_groupchat_count
+- t.user_text_groupchat_count
+- t.user_text_groupchat_length
+- t.user_image_groupchat_count
+- t.user_if_active_groupchat
+- t.user_groupchat_vacate_count
+- t.user_groupchat_makeup_count
+- t.user_groupchat_suspend_count
+- t.user_groupchat_suspension_count
+- t.user_groupchat_sick_count
+- t.user_groupchat_changeclass_count
+- t.recent_attend_status_rk1
+- t.recent_attend_status_rk2
+- t.recent_attend_status_rk3
+- t.recent_attend_status_rk4
+- t.if_join_class_next1
+- t.if_join_class_next2
+- t.if_join_class_next3
+- t.if_join_class_next4
+
+# 新列名
+new_columns:
+- 起始日期
+- 用户id
+- 最近参课排名1距今天数
+- 最近参课排名2距今天数
+- 最近参课排名3距今天数
+- 最近参课排名4距今天数
+- 年份
+- 月份
+- 本月是否假期
+- 周几
+- 总下单金额
+- 总下单次数
+- 总退费次数
+- 首单是否直签
+- 首单一级矩阵
+- 首单下单金额
+- 首单下单课包
+- 首单下单距今
+- 最近一次下单类型
+- 最近一次下单金额
+- 最近一次下单课包
+- 最近下单距今
+- 年龄
+- 城市线级
+- 学员状态
+- 逻辑思维剩余课时
+- 剩余火花币
+- 兑换逻辑思维课时数量
+- 最近一次学生端类型
+- 历史设备数量
+- 常用学生端类型
+- 入学时长
+- 首次入学年级
+- 首次入学班型
+- 历史在班年级数
+- 历史在班天数
+- 最近班级在班天数
+- 最近连续在班天数
+- 历史最长连续在班天数
+- 换班次数
+- 换LA次数
+- 换教师次数
+- 换班型次数
+- 换档期次数
+- 入学测距今时长
+- 入学测末答题目数
+- 入学测末答正确数
+- 入学测末答时长
+- 最近一次专题测距今时长
+- 最近一次专题测答题次数
+- 最近专题测首答题目数
+- 最近专题测首答正确数
+- 最近专题测首答时长
+- 历史逻辑思维课消次数
+- 历史逻辑思维请假次数
+- 剩余逻辑思维请假次数
+- 历史休学次数
+- 历史休学时长
+- 缺课次数
+- 最近一次缺课距今
+- 补课次数
+- 3天内补课次数
+- 直播课补课次数
+- 互动自学课补课次数
+- 教师性别_one
+- 教师年龄_one
+- 教师所在城市线级_one
+- 教师公司司龄_one
+- 教师带系统课天数_one
+- 教师工作性质_one
+- 教师岗位类型_one
+- 教师当前班级数_one
+- 教师当前学生数_one
+- 教师当前最大学生数_one
+- 教师历史年级数_one
+- 教师历史班级数_one
+- 教师历史学生数_one
+- 教师历史课次数_one
+- 教师历史课堂数_one
+- LA性别
+- LA年龄
+- LA公司司龄
+- LA当前学生数
+- 班级最大学员数量_one
+- 班级人数_one
+- 班级男生数量_one
+- 班级女生数量_one
+- 班级连排类型_one
+- 班级班型_one
+- 班级档期日期一_one
+- 班级档期小时一_one
+- 班级档期日期二_one
+- 班级档期小时二_one
+- 海外班标签_one
+- 班级列次_one
+- 班级L段_one
+- 班级id_two
+- 参课状态_rk1
+- 是否预习_rk1
+- 学员准时_rk1
+- 学员提前时长_rk1
+- 学员迟到时长_rk1
+- 教师准时_rk1
+- 教师提前时长_rk1
+- 教师迟到时长_rk1
+- 课前互动时长_rk1
+- 教师本课次备练考完成数_rk1
+- 教师本课次培训视频观看次数_rk1
+- 教师本课次培训视频观看时长_rk1
+- 教师本课次上课次数_rk1
+- 教师本课次上课学员数_rk1
+- 教师本课次上课时长_rk1
+- 教学模式例题回答题目数_rk1
+- 教学模式例题回答题目次数_rk1
+- 教学模式例题答题时长_rk1
+- 教学模式例题答题最大时长_rk1
+- 教学模式例题答题最小时长_rk1
+- 例题回答题目数_rk1
+- 例题回答正确题目数_rk1
+- 例题回答次数_rk1
+- 例题答题时长_rk1
+- 例题答题最大时长_rk1
+- 例题答题最小时长_rk1
+- 例题私麦题目数_rk1
+- 例题私麦次数_rk1
+- 例题私麦时长_rk1
+- 例题私麦最大时长_rk1
+- 例题私麦最小时长_rk1
+- 练习题回答题目数_rk1
+- 练习题回答正确题目数_rk1
+- 练习题回答次数_rk1
+- 练习题答题时长_rk1
+- 练习题答题最大时长_rk1
+- 练习题答题最小时长_rk1
+- 练习题私麦题目数_rk1
+- 练习题私麦次数_rk1
+- 练习题私麦时长_rk1
+- 练习题私麦最大时长_rk1
+- 练习题私麦最小时长_rk1
+- 挑战题回答题目数_rk1
+- 挑战题回答正确题目数_rk1
+- 挑战题回答次数_rk1
+- 挑战题答题时长_rk1
+- 挑战题答题最大时长_rk1
+- 挑战题答题最小时长_rk1
+- 挑战题私麦题目数_rk1
+- 挑战题私麦次数_rk1
+- 挑战题私麦时长_rk1
+- 挑战题私麦最大时长_rk1
+- 挑战题私麦最小时长_rk1
+- 上台时长_rk1
+- 上台次数_rk1
+- 火花秘籍提交次数_rk1
+- 火花秘籍提交天数_rk1
+- 在线火花秘籍题目数_rk1
+- 在线火花秘籍首答正确数_rk1
+- 在线火花秘籍首答用时_rk1
+- 在线火花秘籍是否末答_rk1
+- 小老师视频提交次数_rk1
+- 小老师视频提交天数_rk1
+- 参课状态_rk2
+- 是否预习_rk2
+- 学员准时_rk2
+- 学员提前时长_rk2
+- 学员迟到时长_rk2
+- 教师准时_rk2
+- 教师提前时长_rk2
+- 教师迟到时长_rk2
+- 课前互动时长_rk2
+- 教师本课次备练考完成数_rk2
+- 教师本课次培训视频观看次数_rk2
+- 教师本课次培训视频观看时长_rk2
+- 教师本课次上课次数_rk2
+- 教师本课次上课学员数_rk2
+- 教师本课次上课时长_rk2
+- 教学模式例题回答题目数_rk2
+- 教学模式例题回答题目次数_rk2
+- 教学模式例题答题时长_rk2
+- 教学模式例题答题最大时长_rk2
+- 教学模式例题答题最小时长_rk2
+- 例题回答题目数_rk2
+- 例题回答正确题目数_rk2
+- 例题回答次数_rk2
+- 例题答题时长_rk2
+- 例题答题最大时长_rk2
+- 例题答题最小时长_rk2
+- 例题私麦题目数_rk2
+- 例题私麦次数_rk2
+- 例题私麦时长_rk2
+- 例题私麦最大时长_rk2
+- 例题私麦最小时长_rk2
+- 练习题回答题目数_rk2
+- 练习题回答正确题目数_rk2
+- 练习题回答次数_rk2
+- 练习题答题时长_rk2
+- 练习题答题最大时长_rk2
+- 练习题答题最小时长_rk2
+- 练习题私麦题目数_rk2
+- 练习题私麦次数_rk2
+- 练习题私麦时长_rk2
+- 练习题私麦最大时长_rk2
+- 练习题私麦最小时长_rk2
+- 挑战题回答题目数_rk2
+- 挑战题回答正确题目数_rk2
+- 挑战题回答次数_rk2
+- 挑战题答题时长_rk2
+- 挑战题答题最大时长_rk2
+- 挑战题答题最小时长_rk2
+- 挑战题私麦题目数_rk2
+- 挑战题私麦次数_rk2
+- 挑战题私麦时长_rk2
+- 挑战题私麦最大时长_rk2
+- 挑战题私麦最小时长_rk2
+- 上台时长_rk2
+- 上台次数_rk2
+- 火花秘籍提交次数_rk2
+- 火花秘籍提交天数_rk2
+- 在线火花秘籍题目数_rk2
+- 在线火花秘籍首答正确数_rk2
+- 在线火花秘籍首答用时_rk2
+- 在线火花秘籍是否末答_rk2
+- 小老师视频提交次数_rk2
+- 小老师视频提交天数_rk2
+- 参课状态_rk3
+- 是否预习_rk3
+- 学员准时_rk3
+- 学员提前时长_rk3
+- 学员迟到时长_rk3
+- 教师准时_rk3
+- 教师提前时长_rk3
+- 教师迟到时长_rk3
+- 课前互动时长_rk3
+- 教师本课次备练考完成数_rk3
+- 教师本课次培训视频观看次数_rk3
+- 教师本课次培训视频观看时长_rk3
+- 教师本课次上课次数_rk3
+- 教师本课次上课学员数_rk3
+- 教师本课次上课时长_rk3
+- 教学模式例题回答题目数_rk3
+- 教学模式例题回答题目次数_rk3
+- 教学模式例题答题时长_rk3
+- 教学模式例题答题最大时长_rk3
+- 教学模式例题答题最小时长_rk3
+- 例题回答题目数_rk3
+- 例题回答正确题目数_rk3
+- 例题回答次数_rk3
+- 例题答题时长_rk3
+- 例题答题最大时长_rk3
+- 例题答题最小时长_rk3
+- 例题私麦题目数_rk3
+- 例题私麦次数_rk3
+- 例题私麦时长_rk3
+- 例题私麦最大时长_rk3
+- 例题私麦最小时长_rk3
+- 练习题回答题目数_rk3
+- 练习题回答正确题目数_rk3
+- 练习题回答次数_rk3
+- 练习题答题时长_rk3
+- 练习题答题最大时长_rk3
+- 练习题答题最小时长_rk3
+- 练习题私麦题目数_rk3
+- 练习题私麦次数_rk3
+- 练习题私麦时长_rk3
+- 练习题私麦最大时长_rk3
+- 练习题私麦最小时长_rk3
+- 挑战题回答题目数_rk3
+- 挑战题回答正确题目数_rk3
+- 挑战题回答次数_rk3
+- 挑战题答题时长_rk3
+- 挑战题答题最大时长_rk3
+- 挑战题答题最小时长_rk3
+- 挑战题私麦题目数_rk3
+- 挑战题私麦次数_rk3
+- 挑战题私麦时长_rk3
+- 挑战题私麦最大时长_rk3
+- 挑战题私麦最小时长_rk3
+- 上台时长_rk3
+- 上台次数_rk3
+- 火花秘籍提交次数_rk3
+- 火花秘籍提交天数_rk3
+- 在线火花秘籍题目数_rk3
+- 在线火花秘籍首答正确数_rk3
+- 在线火花秘籍首答用时_rk3
+- 在线火花秘籍是否末答_rk3
+- 小老师视频提交次数_rk3
+- 小老师视频提交天数_rk3
+- 参课状态_rk4
+- 是否预习_rk4
+- 学员准时_rk4
+- 学员提前时长_rk4
+- 学员迟到时长_rk4
+- 教师准时_rk4
+- 教师提前时长_rk4
+- 教师迟到时长_rk4
+- 课前互动时长_rk4
+- 教师本课次备练考完成数_rk4
+- 教师本课次培训视频观看次数_rk4
+- 教师本课次培训视频观看时长_rk4
+- 教师本课次上课次数_rk4
+- 教师本课次上课学员数_rk4
+- 教师本课次上课时长_rk4
+- 教学模式例题回答题目数_rk4
+- 教学模式例题回答题目次数_rk4
+- 教学模式例题答题时长_rk4
+- 教学模式例题答题最大时长_rk4
+- 教学模式例题答题最小时长_rk4
+- 例题回答题目数_rk4
+- 例题回答正确题目数_rk4
+- 例题回答次数_rk4
+- 例题答题时长_rk4
+- 例题答题最大时长_rk4
+- 例题答题最小时长_rk4
+- 例题私麦题目数_rk4
+- 例题私麦次数_rk4
+- 例题私麦时长_rk4
+- 例题私麦最大时长_rk4
+- 例题私麦最小时长_rk4
+- 练习题回答题目数_rk4
+- 练习题回答正确题目数_rk4
+- 练习题回答次数_rk4
+- 练习题答题时长_rk4
+- 练习题答题最大时长_rk4
+- 练习题答题最小时长_rk4
+- 练习题私麦题目数_rk4
+- 练习题私麦次数_rk4
+- 练习题私麦时长_rk4
+- 练习题私麦最大时长_rk4
+- 练习题私麦最小时长_rk4
+- 挑战题回答题目数_rk4
+- 挑战题回答正确题目数_rk4
+- 挑战题回答次数_rk4
+- 挑战题答题时长_rk4
+- 挑战题答题最大时长_rk4
+- 挑战题答题最小时长_rk4
+- 挑战题私麦题目数_rk4
+- 挑战题私麦次数_rk4
+- 挑战题私麦时长_rk4
+- 挑战题私麦最大时长_rk4
+- 挑战题私麦最小时长_rk4
+- 上台时长_rk4
+- 上台次数_rk4
+- 火花秘籍提交次数_rk4
+- 火花秘籍提交天数_rk4
+- 在线火花秘籍题目数_rk4
+- 在线火花秘籍首答正确数_rk4
+- 在线火花秘籍首答用时_rk4
+- 在线火花秘籍是否末答_rk4
+- 小老师视频提交次数_rk4
+- 小老师视频提交天数_rk4
+- LA单聊沟通次数
+- LA文字单聊沟通次数
+- LA文字单聊沟通字数
+- LA图片单聊沟通次数
+- LA是否主动单聊沟通
+- LA单聊含请假关键词次数
+- LA单聊含补课关键词次数
+- LA单聊含停课关键词次数
+- LA单聊含休学关键词次数
+- LA单聊含生病关键词次数
+- LA单聊含换班关键词次数
+- 教师单聊沟通次数
+- 教师文字单聊沟通次数
+- 教师文字单聊沟通字数
+- 教师图片单聊沟通次数
+- 教师是否主动单聊沟通
+- 教师单聊含请假关键词次数
+- 教师单聊含补课关键词次数
+- 教师单聊含停课关键词次数
+- 教师单聊含休学关键词次数
+- 教师单聊含生病关键词次数
+- 教师单聊含换班关键词次数
+- 用户单聊次数
+- 用户文字单聊沟通次数
+- 用户文字单聊沟通字数
+- 用户图片单聊沟通次数
+- 用户是否主动单聊沟通
+- 用户单聊含请假关键词次数
+- 用户单聊含补课关键词次数
+- 用户单聊含停课关键词次数
+- 用户单聊含休学关键词次数
+- 用户单聊含生病关键词次数
+- 用户单聊含换班关键词次数
+- LA群聊沟通次数
+- LA文字群聊沟通次数
+- LA文字群聊沟通字数
+- LA图片群聊沟通次数
+- LA是否主动群聊沟通
+- LA群聊含请假关键词次数
+- LA群聊含补课关键词次数
+- LA群聊含停课关键词次数
+- LA群聊含休学关键词次数
+- LA群聊含生病关键词次数
+- LA群聊含换班关键词次数
+- 教师群聊沟通次数
+- 教师文字群聊沟通次数
+- 教师文字群聊沟通字数
+- 教师图片群聊沟通次数
+- 教师是否主动群聊沟通
+- 教师群聊含请假关键词次数
+- 教师群聊含补课关键词次数
+- 教师群聊含停课关键词次数
+- 教师群聊含休学关键词次数
+- 教师群聊含生病关键词次数
+- 教师群聊含换班关键词次数
+- 用户群聊次数
+- 用户文字群聊沟通次数
+- 用户文字群聊沟通字数
+- 用户图片群聊沟通次数
+- 用户是否主动群聊沟通
+- 用户群聊含请假关键词次数
+- 用户群聊含补课关键词次数
+- 用户群聊含停课关键词次数
+- 用户群聊含休学关键词次数
+- 用户群聊含生病关键词次数
+- 用户群聊含换班关键词次数
+- 最近课堂排名1参课状态
+- 最近课堂排名2参课状态
+- 最近课堂排名3参课状态
+- 最近课堂排名4参课状态
+- 未来课堂排名1是否参课
+- 未来课堂排名2是否参课
+- 未来课堂排名3是否参课
+- 未来课堂排名4是否参课
+- 是否训练集
+- 未来4次课堂是否有缺课
+
+# 新增特征列
+new_features:
+  - calculation_type: division
+    cols: ['入学测末答正确数', '入学测末答题目数']
+    new_col: '入学测末答正确率'
+  - calculation_type: division
+    cols: ['最近专题测首答正确数', '最近专题测首答题目数']
+    new_col: '最近专题测首答正确率'
+  - calculation_type: division
+    cols: ['补课次数', '缺课次数']
+    new_col: '补课率'
+  - calculation_type: division
+    cols: ['3天内补课次数', '缺课次数']
+    new_col: '3天内补课率'
+  - calculation_type: division
+    cols: ['直播课补课次数', '缺课次数']
+    new_col: '直播补课率'
+  - calculation_type: division
+    cols: ['互动自学课补课次数', '缺课次数']
+    new_col: '互动自学补课率'
+  - calculation_type: division
+    cols: ['教师当前学生数_one', '教师当前最大学生数_one']
+    new_col: '教师满座率'
+  - calculation_type: is_not_null
+    cols: ['班级id_two']
+    new_col: '是否有第二班级'
+  - calculation_type: division
+    cols: ['教师本课次上课时长_rk1', '教师本课次上课次数_rk1']
+    new_col: '平均单课次上课时长_rk1'
+  - calculation_type: division
+    cols: ['在线火花秘籍首答正确数_rk1', '在线火花秘籍题目数_rk1']
+    new_col: '在线火花秘籍首答正确率_rk1'
+  - calculation_type: division
+    cols: ['教师本课次上课时长_rk2', '教师本课次上课次数_rk2']
+    new_col: '平均单课次上课时长_rk2'
+  - calculation_type: division
+    cols: ['在线火花秘籍首答正确数_rk2', '在线火花秘籍题目数_rk2']
+    new_col: '在线火花秘籍首答正确率_rk2'
+  - calculation_type: division
+    cols: ['教师本课次上课时长_rk3', '教师本课次上课次数_rk3']
+    new_col: '平均单课次上课时长_rk3'
+  - calculation_type: division
+    cols: ['在线火花秘籍首答正确数_rk3', '在线火花秘籍题目数_rk3']
+    new_col: '在线火花秘籍首答正确率_rk3'
+  - calculation_type: division
+    cols: ['教师本课次上课时长_rk4', '教师本课次上课次数_rk4']
+    new_col: '平均单课次上课时长_rk4'
+  - calculation_type: division
+    cols: ['在线火花秘籍首答正确数_rk4', '在线火花秘籍题目数_rk4']
+    new_col: '在线火花秘籍首答正确率_rk4'
+  - calculation_type: sum
+    cols: ['LA单聊含请假关键词次数', 'LA单聊含补课关键词次数', 'LA单聊含停课关键词次数', 'LA单聊含生病关键词次数', 'LA单聊含换班关键词次数']
+    new_col: 'LA单聊关键词命中次数'
+  - calculation_type: sum
+    cols: ['教师单聊含请假关键词次数', '教师单聊含补课关键词次数', '教师单聊含停课关键词次数', '教师单聊含生病关键词次数', '教师单聊含换班关键词次数']
+    new_col: '教师单聊关键词命中次数'
+  - calculation_type: sum
+    cols: ['用户单聊含请假关键词次数', '用户单聊含补课关键词次数', '用户单聊含停课关键词次数', '用户单聊含生病关键词次数', '用户单聊含换班关键词次数']
+    new_col: '用户单聊关键词命中次数'
+  - calculation_type: sum
+    cols: ['LA群聊含请假关键词次数', 'LA群聊含补课关键词次数', 'LA群聊含停课关键词次数', 'LA群聊含生病关键词次数', 'LA群聊含换班关键词次数']
+    new_col: 'LA群聊关键词命中次数'
+  - calculation_type: sum
+    cols: ['教师群聊含请假关键词次数', '教师群聊含补课关键词次数', '教师群聊含停课关键词次数', '教师群聊含生病关键词次数', '教师群聊含换班关键词次数']
+    new_col: '教师群聊关键词命中次数'
+  - calculation_type: sum
+    cols: ['用户群聊含请假关键词次数', '用户群聊含补课关键词次数', '用户群聊含停课关键词次数', '用户群聊含生病关键词次数', '用户群聊含换班关键词次数']
+    new_col: '用户群聊关键词命中次数'
+  - calculation_type: datetime_to_timestamp
+    cols: ['起始日期']
+    new_col: '起始日期时间戳'
+
+# null值指示器
+null_indicators:
+  年龄: 0
+  入学测距今时长: 'null'
+  最近一次专题测答题次数: 'null'
+  最近专题测首答正确数: 'null'
+  历史休学次数: 'null'
+  补课次数: 'null'
+  学员提前时长_rk1: 'null'
+  学员迟到时长_rk1: 'null'
+  教师提前时长_rk1: 'null'
+  教师迟到时长_rk1: 'null'
+  教师本课次上课学员数_rk1: 0
+  教学模式例题答题最大时长_rk1: 'null'
+  例题答题最大时长_rk1: 'null'
+  例题私麦最大时长_rk1: 'null'
+  练习题答题最大时长_rk1: 'null'
+  练习题私麦最大时长_rk1: 'null'
+  挑战题答题最大时长_rk1: 'null'
+  挑战题私麦最大时长_rk1: 'null'
+  在线火花秘籍首答正确数_rk1: 'null'
+  学员提前时长_rk2: 'null'
+  学员迟到时长_rk2: 'null'
+  教师提前时长_rk2: 'null'
+  教师迟到时长_rk2: 'null'
+  教师本课次上课学员数_rk2: 0
+  教学模式例题答题最大时长_rk2: 'null'
+  例题答题最大时长_rk2: 'null'
+  例题私麦最大时长_rk2: 'null'
+  练习题答题最大时长_rk2: 'null'
+  练习题私麦最大时长_rk2: 'null'
+  挑战题答题最大时长_rk2: 'null'
+  挑战题私麦最大时长_rk2: 'null'
+  在线火花秘籍首答正确数_rk2: 'null'
+  学员提前时长_rk3: 'null'
+  学员迟到时长_rk3: 'null'
+  教师提前时长_rk3: 'null'
+  教师迟到时长_rk3: 'null'
+  教师本课次上课学员数_rk3: 0
+  教学模式例题答题最大时长_rk3: 'null'
+  例题答题最大时长_rk3: 'null'
+  例题私麦最大时长_rk3: 'null'
+  练习题答题最大时长_rk3: 'null'
+  练习题私麦最大时长_rk3: 'null'
+  挑战题答题最大时长_rk3: 'null'
+  挑战题私麦最大时长_rk3: 'null'
+  在线火花秘籍首答正确数_rk3: 'null'
+  学员提前时长_rk4: 'null'
+  学员迟到时长_rk4: 'null'
+  教师提前时长_rk4: 'null'
+  教师迟到时长_rk4: 'null'
+  教师本课次上课学员数_rk4: 0
+  教学模式例题答题最大时长_rk4: 'null'
+  例题答题最大时长_rk4: 'null'
+  例题私麦最大时长_rk4: 'null'
+  练习题答题最大时长_rk4: 'null'
+  练习题私麦最大时长_rk4: 'null'
+  挑战题答题最大时长_rk4: 'null'
+  挑战题私麦最大时长_rk4: 'null'
+  在线火花秘籍首答正确数_rk4: 'null'
+  LA单聊沟通次数: 'null'
+  教师单聊沟通次数: 'null'
+  用户单聊次数: 'null'
+  LA群聊沟通次数: 'null'
+  教师群聊沟通次数: 'null'
+  用户群聊次数: 'null'
+
+# 空值填充方式
+fill_values:
+  最近参课排名1距今天数: '中位数'
+  最近参课排名2距今天数: '中位数'
+  最近参课排名3距今天数: '中位数'
+  最近参课排名4距今天数: '中位数'
+  年份: '中位数'
+  月份: '中位数'
+  本月是否假期: '中位数'
+  周几: '中位数'
+  总下单金额: 0
+  总下单次数: 0
+  总退费次数: 0
+  首单是否直签: '中位数'
+  首单一级矩阵: '中位数'
+  首单下单金额: 0
+  首单下单课包: 0
+  首单下单距今: '中位数'
+  最近一次下单类型: '中位数'
+  最近一次下单金额: 0
+  最近一次下单课包: '中位数'
+  最近下单距今: '中位数'
+  年龄: 0
+  城市线级: '中位数'
+  学员状态: '中位数'
+  逻辑思维剩余课时: '中位数'
+  剩余火花币: 0
+  兑换逻辑思维课时数量: 0
+  最近一次学生端类型: '中位数'
+  历史设备数量: 0
+  常用学生端类型: '中位数'
+  入学时长: 0
+  首次入学年级: '中位数'
+  首次入学班型: '中位数'
+  历史在班年级数: '中位数'
+  历史在班天数: 0
+  最近班级在班天数: 0
+  最近连续在班天数: 0
+  历史最长连续在班天数: 0
+  换班次数: '中位数'
+  换LA次数: 0
+  换教师次数: 0
+  换班型次数: 0
+  换档期次数: 0
+  入学测距今时长: -1
+  入学测末答正确率: '中位数'
+  入学测末答时长: '中位数'
+  最近一次专题测距今时长: '中位数'
+  最近一次专题测答题次数: 0
+  最近专题测首答正确率: -1
+  最近专题测首答时长: -1
+  历史逻辑思维课消次数: 8
+  历史逻辑思维请假次数: 0
+  剩余逻辑思维请假次数: 0
+  历史休学次数: 0
+  历史休学时长: -1
+  缺课次数: 0
+  最近一次缺课距今: -1
+  补课率: -1
+  3天内补课率: -1
+  直播补课率: -1
+  互动自学补课率: -1
+  教师性别_one: '中位数'
+  教师年龄_one: '中位数'
+  教师所在城市线级_one: '中位数'
+  教师公司司龄_one: 0
+  教师带系统课天数_one: '中位数'
+  教师工作性质_one: '中位数'
+  教师岗位类型_one: '中位数'
+  教师当前班级数_one: '中位数'
+  教师当前学生数_one: '中位数'
+  教师满座率: '中位数'
+  教师历史年级数_one: 0
+  教师历史班级数_one: 0
+  教师历史学生数_one: 0
+  教师历史课次数_one: 0
+  教师历史课堂数_one: 0
+  LA性别: '中位数'
+  LA年龄: 0
+  LA公司司龄: 0
+  LA当前学生数: 0
+  班级最大学员数量_one: 0
+  班级人数_one: 0
+  班级男生数量_one: 0
+  班级女生数量_one: 0
+  班级连排类型_one: '中位数'
+  班级班型_one: '中位数'
+  班级档期日期一_one: '中位数'
+  班级档期小时一_one: '中位数'
+  班级档期日期二_one: '中位数'
+  班级档期小时二_one: '中位数'
+  海外班标签_one: '中位数'
+  班级列次_one: '中位数'
+  班级L段_one: '中位数'
+  是否有第二班级: 0
+  参课状态_rk1: '中位数'
+  是否预习_rk1: '中位数'
+  学员准时_rk1: '中位数'
+  学员提前时长_rk1: -1
+  学员迟到时长_rk1: -1
+  教师准时_rk1: '中位数'
+  教师提前时长_rk1: -1
+  教师迟到时长_rk1: -1
+  课前互动时长_rk1: -1
+  教师本课次备练考完成数_rk1: '中位数'
+  教师本课次培训视频观看次数_rk1: 0
+  教师本课次培训视频观看时长_rk1: 0
+  教师本课次上课次数_rk1: 0
+  教师本课次上课学员数_rk1: 0
+  平均单课次上课时长_rk1: '中位数'
+  教学模式例题回答题目数_rk1: 0
+  教学模式例题回答题目次数_rk1: 0
+  教学模式例题答题时长_rk1: 0
+  教学模式例题答题最大时长_rk1: 0
+  教学模式例题答题最小时长_rk1: 0
+  例题回答题目数_rk1: 0
+  例题回答正确题目数_rk1: 0
+  例题回答次数_rk1: 0
+  例题答题时长_rk1: 0
+  例题答题最大时长_rk1: 0
+  例题答题最小时长_rk1: 0
+  例题私麦题目数_rk1: 0
+  例题私麦次数_rk1: 0
+  例题私麦时长_rk1: 0
+  例题私麦最大时长_rk1: 0
+  例题私麦最小时长_rk1: 0
+  练习题回答题目数_rk1: 0
+  练习题回答正确题目数_rk1: 0
+  练习题回答次数_rk1: 0
+  练习题答题时长_rk1: 0
+  练习题答题最大时长_rk1: 0
+  练习题答题最小时长_rk1: 0
+  练习题私麦题目数_rk1: 0
+  练习题私麦次数_rk1: 0
+  练习题私麦时长_rk1: 0
+  练习题私麦最大时长_rk1: 0
+  练习题私麦最小时长_rk1: 0
+  挑战题回答题目数_rk1: 0
+  挑战题回答正确题目数_rk1: 0
+  挑战题回答次数_rk1: 0
+  挑战题答题时长_rk1: 0
+  挑战题答题最大时长_rk1: 0
+  挑战题答题最小时长_rk1: 0
+  挑战题私麦题目数_rk1: 0
+  挑战题私麦次数_rk1: 0
+  挑战题私麦时长_rk1: 0
+  挑战题私麦最大时长_rk1: 0
+  挑战题私麦最小时长_rk1: 0
+  上台时长_rk1: 0
+  上台次数_rk1: 0
+  火花秘籍提交次数_rk1: 0
+  火花秘籍提交天数_rk1: 100
+  在线火花秘籍首答正确率_rk1: -1
+  在线火花秘籍首答用时_rk1: -1
+  在线火花秘籍是否末答_rk1: 0
+  小老师视频提交次数_rk1: 0
+  小老师视频提交天数_rk1: -1
+  参课状态_rk2: '中位数'
+  是否预习_rk2: '中位数'
+  学员准时_rk2: '中位数'
+  学员提前时长_rk2: -1
+  学员迟到时长_rk2: -1
+  教师准时_rk2: '中位数'
+  教师提前时长_rk2: -1
+  教师迟到时长_rk2: -1
+  课前互动时长_rk2: -1
+  教师本课次备练考完成数_rk2: '中位数'
+  教师本课次培训视频观看次数_rk2: 0
+  教师本课次培训视频观看时长_rk2: 0
+  教师本课次上课次数_rk2: 0
+  教师本课次上课学员数_rk2: 0
+  平均单课次上课时长_rk2: '中位数'
+  教学模式例题回答题目数_rk2: 0
+  教学模式例题回答题目次数_rk2: 0
+  教学模式例题答题时长_rk2: 0
+  教学模式例题答题最大时长_rk2: 0
+  教学模式例题答题最小时长_rk2: 0
+  例题回答题目数_rk2: 0
+  例题回答正确题目数_rk2: 0
+  例题回答次数_rk2: 0
+  例题答题时长_rk2: 0
+  例题答题最大时长_rk2: 0
+  例题答题最小时长_rk2: 0
+  例题私麦题目数_rk2: 0
+  例题私麦次数_rk2: 0
+  例题私麦时长_rk2: 0
+  例题私麦最大时长_rk2: 0
+  例题私麦最小时长_rk2: 0
+  练习题回答题目数_rk2: 0
+  练习题回答正确题目数_rk2: 0
+  练习题回答次数_rk2: 0
+  练习题答题时长_rk2: 0
+  练习题答题最大时长_rk2: 0
+  练习题答题最小时长_rk2: 0
+  练习题私麦题目数_rk2: 0
+  练习题私麦次数_rk2: 0
+  练习题私麦时长_rk2: 0
+  练习题私麦最大时长_rk2: 0
+  练习题私麦最小时长_rk2: 0
+  挑战题回答题目数_rk2: 0
+  挑战题回答正确题目数_rk2: 0
+  挑战题回答次数_rk2: 0
+  挑战题答题时长_rk2: 0
+  挑战题答题最大时长_rk2: 0
+  挑战题答题最小时长_rk2: 0
+  挑战题私麦题目数_rk2: 0
+  挑战题私麦次数_rk2: 0
+  挑战题私麦时长_rk2: 0
+  挑战题私麦最大时长_rk2: 0
+  挑战题私麦最小时长_rk2: 0
+  上台时长_rk2: 0
+  上台次数_rk2: 0
+  火花秘籍提交次数_rk2: 0
+  火花秘籍提交天数_rk2: 100
+  在线火花秘籍首答正确率_rk2: -1
+  在线火花秘籍首答用时_rk2: -1
+  在线火花秘籍是否末答_rk2: 0
+  小老师视频提交次数_rk2: 0
+  小老师视频提交天数_rk2: -1
+  参课状态_rk3: '中位数'
+  是否预习_rk3: '中位数'
+  学员准时_rk3: '中位数'
+  学员提前时长_rk3: -1
+  学员迟到时长_rk3: -1
+  教师准时_rk3: '中位数'
+  教师提前时长_rk3: -1
+  教师迟到时长_rk3: -1
+  课前互动时长_rk3: -1
+  教师本课次备练考完成数_rk3: '中位数'
+  教师本课次培训视频观看次数_rk3: 0
+  教师本课次培训视频观看时长_rk3: 0
+  教师本课次上课次数_rk3: 0
+  教师本课次上课学员数_rk3: 0
+  平均单课次上课时长_rk3: '中位数'
+  教学模式例题回答题目数_rk3: 0
+  教学模式例题回答题目次数_rk3: 0
+  教学模式例题答题时长_rk3: 0
+  教学模式例题答题最大时长_rk3: 0
+  教学模式例题答题最小时长_rk3: 0
+  例题回答题目数_rk3: 0
+  例题回答正确题目数_rk3: 0
+  例题回答次数_rk3: 0
+  例题答题时长_rk3: 0
+  例题答题最大时长_rk3: 0
+  例题答题最小时长_rk3: 0
+  例题私麦题目数_rk3: 0
+  例题私麦次数_rk3: 0
+  例题私麦时长_rk3: 0
+  例题私麦最大时长_rk3: 0
+  例题私麦最小时长_rk3: 0
+  练习题回答题目数_rk3: 0
+  练习题回答正确题目数_rk3: 0
+  练习题回答次数_rk3: 0
+  练习题答题时长_rk3: 0
+  练习题答题最大时长_rk3: 0
+  练习题答题最小时长_rk3: 0
+  练习题私麦题目数_rk3: 0
+  练习题私麦次数_rk3: 0
+  练习题私麦时长_rk3: 0
+  练习题私麦最大时长_rk3: 0
+  练习题私麦最小时长_rk3: 0
+  挑战题回答题目数_rk3: 0
+  挑战题回答正确题目数_rk3: 0
+  挑战题回答次数_rk3: 0
+  挑战题答题时长_rk3: 0
+  挑战题答题最大时长_rk3: 0
+  挑战题答题最小时长_rk3: 0
+  挑战题私麦题目数_rk3: 0
+  挑战题私麦次数_rk3: 0
+  挑战题私麦时长_rk3: 0
+  挑战题私麦最大时长_rk3: 0
+  挑战题私麦最小时长_rk3: 0
+  上台时长_rk3: 0
+  上台次数_rk3: 0
+  火花秘籍提交次数_rk3: 0
+  火花秘籍提交天数_rk3: 100
+  在线火花秘籍首答正确率_rk3: -1
+  在线火花秘籍首答用时_rk3: -1
+  在线火花秘籍是否末答_rk3: 0
+  小老师视频提交次数_rk3: 0
+  小老师视频提交天数_rk3: -1
+  参课状态_rk4: '中位数'
+  是否预习_rk4: '中位数'
+  学员准时_rk4: '中位数'
+  学员提前时长_rk4: -1
+  学员迟到时长_rk4: -1
+  教师准时_rk4: '中位数'
+  教师提前时长_rk4: -1
+  教师迟到时长_rk4: -1
+  课前互动时长_rk4: -1
+  教师本课次备练考完成数_rk4: '中位数'
+  教师本课次培训视频观看次数_rk4: 0
+  教师本课次培训视频观看时长_rk4: 0
+  教师本课次上课次数_rk4: 0
+  教师本课次上课学员数_rk4: 0
+  平均单课次上课时长_rk4: '中位数'
+  教学模式例题回答题目数_rk4: 0
+  教学模式例题回答题目次数_rk4: 0
+  教学模式例题答题时长_rk4: 0
+  教学模式例题答题最大时长_rk4: 0
+  教学模式例题答题最小时长_rk4: 0
+  例题回答题目数_rk4: 0
+  例题回答正确题目数_rk4: 0
+  例题回答次数_rk4: 0
+  例题答题时长_rk4: 0
+  例题答题最大时长_rk4: 0
+  例题答题最小时长_rk4: 0
+  例题私麦题目数_rk4: 0
+  例题私麦次数_rk4: 0
+  例题私麦时长_rk4: 0
+  例题私麦最大时长_rk4: 0
+  例题私麦最小时长_rk4: 0
+  练习题回答题目数_rk4: 0
+  练习题回答正确题目数_rk4: 0
+  练习题回答次数_rk4: 0
+  练习题答题时长_rk4: 0
+  练习题答题最大时长_rk4: 0
+  练习题答题最小时长_rk4: 0
+  练习题私麦题目数_rk4: 0
+  练习题私麦次数_rk4: 0
+  练习题私麦时长_rk4: 0
+  练习题私麦最大时长_rk4: 0
+  练习题私麦最小时长_rk4: 0
+  挑战题回答题目数_rk4: 0
+  挑战题回答正确题目数_rk4: 0
+  挑战题回答次数_rk4: 0
+  挑战题答题时长_rk4: 0
+  挑战题答题最大时长_rk4: 0
+  挑战题答题最小时长_rk4: 0
+  挑战题私麦题目数_rk4: 0
+  挑战题私麦次数_rk4: 0
+  挑战题私麦时长_rk4: 0
+  挑战题私麦最大时长_rk4: 0
+  挑战题私麦最小时长_rk4: 0
+  上台时长_rk4: 0
+  上台次数_rk4: 0
+  火花秘籍提交次数_rk4: 0
+  火花秘籍提交天数_rk4: 100
+  在线火花秘籍首答正确率_rk4: -1
+  在线火花秘籍首答用时_rk4: -1
+  在线火花秘籍是否末答_rk4: 0
+  小老师视频提交次数_rk4: 0
+  小老师视频提交天数_rk4: -1
+  LA单聊沟通次数: 0
+  LA文字单聊沟通次数: 0
+  LA文字单聊沟通字数: 0
+  LA图片单聊沟通次数: 0
+  LA是否主动单聊沟通: 0
+  LA单聊关键词命中次数: 0
+  LA单聊含休学关键词次数: 0
+  教师单聊沟通次数: 0
+  教师文字单聊沟通次数: 0
+  教师文字单聊沟通字数: 0
+  教师图片单聊沟通次数: 0
+  教师是否主动单聊沟通: 0
+  教师单聊关键词命中次数: 0
+  教师单聊含休学关键词次数: 0
+  用户单聊次数: 0
+  用户文字单聊沟通次数: 0
+  用户文字单聊沟通字数: 0
+  用户图片单聊沟通次数: 0
+  用户是否主动单聊沟通: 0
+  用户单聊关键词命中次数: 0
+  用户单聊含休学关键词次数: 0
+  LA群聊沟通次数: 0
+  LA文字群聊沟通次数: 0
+  LA文字群聊沟通字数: 0
+  LA图片群聊沟通次数: 0
+  LA是否主动群聊沟通: 0
+  LA群聊关键词命中次数: 0
+  LA群聊含休学关键词次数: 0
+  教师群聊沟通次数: 0
+  教师文字群聊沟通次数: 0
+  教师文字群聊沟通字数: 0
+  教师图片群聊沟通次数: 0
+  教师是否主动群聊沟通: 0
+  教师群聊关键词命中次数: 0
+  教师群聊含休学关键词次数: 0
+  用户群聊次数: 0
+  用户文字群聊沟通次数: 0
+  用户文字群聊沟通字数: 0
+  用户图片群聊沟通次数: 0
+  用户是否主动群聊沟通: 0
+  用户群聊关键词命中次数: 0
+  用户群聊含休学关键词次数: 0
+  最近课堂排名1参课状态: 1
+  最近课堂排名2参课状态: 1
+  最近课堂排名3参课状态: 1
+  最近课堂排名4参课状态: 1
+  入学测末答正确率: '中位数'
+  最近专题测首答正确率: -1
+  补课率: -1
+  3天内补课率: -1
+  直播补课率: -1
+  互动自学补课率: -1
+  教师满座率: '中位数'
+  是否有第二班级: 0
+  平均单课次上课时长_rk1: '中位数'
+  在线火花秘籍首答正确率_rk1: -1
+  平均单课次上课时长_rk2: '中位数'
+  在线火花秘籍首答正确率_rk2: -1
+  平均单课次上课时长_rk3: '中位数'
+  在线火花秘籍首答正确率_rk3: -1
+  平均单课次上课时长_rk4: '中位数'
+  在线火花秘籍首答正确率_rk4: -1
+  LA单聊关键词命中次数: 0
+  教师单聊关键词命中次数: 0
+  用户单聊关键词命中次数: 0
+  LA群聊关键词命中次数: 0
+  教师群聊关键词命中次数: 0
+  用户群聊关键词命中次数: 0
+  未来课堂排名1是否参课: 0
+  未来课堂排名2是否参课: 0
+  未来课堂排名3是否参课: 0
+  未来课堂排名4是否参课: 0
+
+# 特殊特征处理
+unusual_feature_dict:
+  课前互动时长_rk1: 'less_than_zero'
+  例题答题时长_rk1: 'less_than_zero'
+  例题答题最大时长_rk1: 'less_than_zero'
+  例题答题最小时长_rk1: 'less_than_zero'
+  练习题答题时长_rk1: 'less_than_zero'
+  练习题答题最大时长_rk1: 'less_than_zero'
+  练习题答题最小时长_rk1: 'less_than_zero'
+  挑战题答题时长_rk1: 'less_than_zero'
+  挑战题答题最大时长_rk1: 'less_than_zero'
+  挑战题答题最小时长_rk1: 'less_than_zero'
+  上台时长_rk1: 'less_than_zero'
+  上台次数_rk1: 'less_than_zero'
+  课前互动时长_rk2: 'less_than_zero'
+  例题答题时长_rk2: 'less_than_zero'
+  例题答题最大时长_rk2: 'less_than_zero'
+  例题答题最小时长_rk2: 'less_than_zero'
+  练习题答题时长_rk2: 'less_than_zero'
+  练习题答题最大时长_rk2: 'less_than_zero'
+  练习题答题最小时长_rk2: 'less_than_zero'
+  挑战题答题时长_rk2: 'less_than_zero'
+  挑战题答题最大时长_rk2: 'less_than_zero'
+  挑战题答题最小时长_rk2: 'less_than_zero'
+  上台时长_rk2: 'less_than_zero'
+  上台次数_rk2: 'less_than_zero'
+  课前互动时长_rk3: 'less_than_zero'
+  例题答题时长_rk3: 'less_than_zero'
+  例题答题最大时长_rk3: 'less_than_zero'
+  例题答题最小时长_rk3: 'less_than_zero'
+  练习题答题时长_rk3: 'less_than_zero'
+  练习题答题最大时长_rk3: 'less_than_zero'
+  练习题答题最小时长_rk3: 'less_than_zero'
+  挑战题答题时长_rk3: 'less_than_zero'
+  挑战题答题最大时长_rk3: 'less_than_zero'
+  挑战题答题最小时长_rk3: 'less_than_zero'
+  上台时长_rk3: 'less_than_zero'
+  上台次数_rk3: 'less_than_zero'
+  课前互动时长_rk4: 'less_than_zero'
+  例题答题时长_rk4: 'less_than_zero'
+  例题答题最大时长_rk4: 'less_than_zero'
+  例题答题最小时长_rk4: 'less_than_zero'
+  练习题答题时长_rk4: 'less_than_zero'
+  练习题答题最大时长_rk4: 'less_than_zero'
+  练习题答题最小时长_rk4: 'less_than_zero'
+  挑战题答题时长_rk4: 'less_than_zero'
+  挑战题答题最大时长_rk4: 'less_than_zero'
+  挑战题答题最小时长_rk4: 'less_than_zero'
+  上台时长_rk4: 'less_than_zero'
+  上台次数_rk4: 'less_than_zero'
+  LA单聊含休学关键词次数: 'greater_than_one'
+  教师单聊含休学关键词次数: 'greater_than_one'
+  用户单聊含休学关键词次数: 'greater_than_one'
+  LA群聊含休学关键词次数: 'greater_than_one'
+  教师群聊含休学关键词次数: 'greater_than_one'
+  用户群聊含休学关键词次数: 'greater_than_one'
+
+# onehot编码大于1的特征
+onehot_greater_than_one_features:
+  - 本月是否假期
+  - 首单是否直签
+  - 教师性别_one
+  - LA性别
+  - 班级连排类型_one
+  - 海外班标签_one
+  - 是否预习_rk1
+  - 学员准时_rk1
+  - 教师准时_rk1
+  - 在线火花秘籍是否末答_rk1
+  - 小老师视频提交次数_rk1
+  - 是否预习_rk2
+  - 学员准时_rk2
+  - 教师准时_rk2
+  - 火花秘籍提交次数_rk2
+  - 在线火花秘籍是否末答_rk2
+  - 小老师视频提交次数_rk2
+  - 参课状态_rk3
+  - 是否预习_rk3
+  - 学员准时_rk3
+  - 教师准时_rk3
+  - 火花秘籍提交次数_rk3
+  - 在线火花秘籍是否末答_rk3
+  - 小老师视频提交次数_rk3
+  - 参课状态_rk4
+  - 是否预习_rk4
+  - 学员准时_rk4
+  - 教师准时_rk4
+  - 火花秘籍提交次数_rk4
+  - 在线火花秘籍是否末答_rk4
+  - 小老师视频提交次数_rk4
+  - LA是否主动单聊沟通
+  - LA单聊含休学关键词次数
+  - 教师是否主动单聊沟通
+  - 教师单聊含休学关键词次数
+  - 用户是否主动单聊沟通
+  - 用户单聊含休学关键词次数
+  - LA是否主动群聊沟通
+  - LA群聊含休学关键词次数
+  - 教师是否主动群聊沟通
+  - 教师群聊含休学关键词次数
+  - 用户群聊含休学关键词次数
+
+# onehot编码特征说明
+mapping_dict:
+  首单一级矩阵:
+    1: '转介绍'
+    2: '信息流投放'
+    3: '商务合作'
+    4: '其他'
+  最近一次下单类型:
+    1: 'sys成单'
+    2: '沉睡用户成单'
+    3: 'CC成单'
+    4: 'LA成单'
+  城市线级:
+    1: '一线'
+    2: '新一线'
+    3: '二线'
+    4: '三线'
+    5: '四线及以下'
+    6: '海外'
+  学员状态:
+    1: '在班未休学'
+    2: '在班休学'
+    3: '在读不在班'
+    4: '休眠'
+  最近一次学生端类型:
+    1: 'ios'
+    2: 'android'
+    3: 'windows'
+    4: 'others'
+  常用学生端类型:
+    1: 'ios'
+    2: 'android'
+    3: 'windows'
+    4: 'others'
+  首次入学班型:
+    0: '补课班'
+    5: '创新A+班'
+    10: '创新班'
+    15: '挑战班'
+    20: '博学班'
+    30: '培优班'
+  教师工作性质_one:
+    1: '全职'
+    2: '兼职'
+    5: '小火苗'
+  教师岗位类型_one:
+    1: '辅导员'
+    2: '教研'
+    3: '培训师'
+    4: '教师'
+    5: '未分配'
+    6: '课评师'
+    7: '年级组长'
+  班级最大学员数量_one:
+    6: '6人班'
+    8: '8人班'
+    0: '其他'
+  班级班型_one:
+    1: '补课班'
+    5: '创新 A+ 班'
+    10: '创新班'
+    15: '挑战班'
+    20: '博学班'
+    30: '培优班'
+  班级列次_one:
+    1: '无列次'
+    2: '0列'
+    3: '1列'
+    4: '2列'
+  班级L段_one:
+    1: 'L1'
+    2: 'L2'
+    3: 'L3'
+    4: 'L4'
+    5: 'L5'
+    6: 'L6'
+    7: 'L7'
+    8: 'L8'
+    9: 'L9'
+  参课状态_rk1:
+    0: '休学'
+    1: '缺课'
+    2: '直播参课'
+    3: '直播补课参课'
+    4: '互动自学补课'
+  参课状态_rk2:
+    0: '休学'
+    1: '缺课'
+    2: '直播参课'
+    3: '直播补课参课'
+    4: '互动自学补课'
+  参课状态_rk3:
+    0: '休学'
+    1: '缺课'
+    2: '直播参课'
+    3: '直播补课参课'
+    4: '互动自学补课'
+  参课状态_rk4:
+    0: '休学'
+    1: '缺课'
+    2: '直播参课'
+    3: '直播补课参课'
+    4: '互动自学补课'
+  最近课堂排名1参课状态:
+    0: '休学'
+    1: '缺课'
+    2: '直播参课'
+    3: '直播补课参课'
+    4: '互动自学补课'
+  最近课堂排名2参课状态:
+    0: '休学'
+    1: '缺课'
+    2: '直播参课'
+    3: '直播补课参课'
+    4: '互动自学补课'
+  最近课堂排名3参课状态:
+    0: '休学'
+    1: '缺课'
+    2: '直播参课'
+    3: '直播补课参课'
+    4: '互动自学补课'
+  最近课堂排名4参课状态:
+    0: '休学'
+    1: '缺课'
+    2: '直播参课'
+    3: '直播补课参课'
+    4: '互动自学补课'
+
+# onthot编码特征
+categories_dict:
+  年份: [2023, 2024, 2025]
+  月份: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+  周几: [1, 2, 3, 4, 5, 6, 7]
+  首单一级矩阵: ['转介绍', '信息流投放', '商务合作', '其他']
+  最近一次下单类型: ['sys成单', '沉睡用户成单', 'CC成单', 'LA成单']
+  城市线级: ['一线', '新一线', '二线', '三线', '四线及以下', '海外']
+  学员状态: ['在班未休学', '在班休学', '在读不在班', '休眠']
+  最近一次学生端类型: ['ios', 'android', 'windows', 'others']
+  常用学生端类型: ['ios', 'android', 'windows', 'others']
+  首次入学班型: ['补课班', '创新A+班', '创新班', '挑战班', '博学班', '培优班']
+  教师所在城市线级_one: [1, 2, 3, 4]
+  教师工作性质_one: ['全职', '兼职', '小火苗']
+  教师岗位类型_one: ['辅导员', '教研', '培训师', '教师', '未分配', '课评师', '年级组长']
+  班级最大学员数量_one: ['6人班', '8人班', '其他']
+  班级班型_one: ['补课班', '创新 A+ 班', '创新班', '挑战班', '博学班', '培优班']
+  班级档期日期一_one: [1, 2, 3, 4, 5, 6, 7]
+  班级档期日期二_one: [1, 2, 3, 4, 5, 6, 7]
+  班级列次_one: ['无列次', '0列', '1列', '2列']
+  班级L段_one: ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9']
+  参课状态_rk1: ['休学', '缺课', '直播参课', '直播补课参课', '互动自学补课']
+  火花秘籍提交次数_rk1: [0, 1, 2]
+  参课状态_rk2: ['休学', '缺课', '直播参课', '直播补课参课', '互动自学补课']
+  火花秘籍提交次数_rk2: [0, 1, 2]
+  参课状态_rk3: ['休学', '缺课', '直播参课', '直播补课参课', '互动自学补课']
+  火花秘籍提交次数_rk3: [0, 1, 2]
+  参课状态_rk4: ['休学', '缺课', '直播参课', '直播补课参课', '互动自学补课']
+  火花秘籍提交次数_rk4: [0, 1, 2]
+  最近课堂排名1参课状态: ['休学', '缺课', '直播参课', '直播补课参课', '互动自学补课']
+  最近课堂排名2参课状态: ['休学', '缺课', '直播参课', '直播补课参课', '互动自学补课']
+  最近课堂排名3参课状态: ['休学', '缺课', '直播参课', '直播补课参课', '互动自学补课']
+  最近课堂排名4参课状态: ['休学', '缺课', '直播参课', '直播补课参课', '互动自学补课']
+
+# 删除特征
+columns_to_drop: 
+  - '起始日期'
+  - '入学测末答题目数'
+  - '入学测末答正确数'
+  - '最近专题测首答题目数'
+  - '最近专题测首答正确数'
+  - '补课次数'
+  - '3天内补课次数'
+  - '直播课补课次数'
+  - '互动自学课补课次数'
+  - '教师当前最大学生数_one'
+  - '班级id_two'
+  - '教师本课次上课时长_rk1'
+  - '在线火花秘籍题目数_rk1'
+  - '在线火花秘籍首答正确数_rk1'
+  - '教师本课次上课时长_rk2'
+  - '在线火花秘籍题目数_rk2'
+  - '在线火花秘籍首答正确数_rk2'
+  - '教师本课次上课时长_rk3'
+  - '在线火花秘籍题目数_rk3'
+  - '在线火花秘籍首答正确数_rk3'
+  - '教师本课次上课时长_rk4'
+  - '在线火花秘籍题目数_rk4'
+  - '在线火花秘籍首答正确数_rk4'
+  - 'LA单聊含请假关键词次数'
+  - 'LA单聊含补课关键词次数'
+  - 'LA单聊含停课关键词次数'
+  - 'LA单聊含生病关键词次数'
+  - 'LA单聊含换班关键词次数'
+  - '教师单聊含请假关键词次数'
+  - '教师单聊含补课关键词次数'
+  - '教师单聊含停课关键词次数'
+  - '教师单聊含生病关键词次数'
+  - '教师单聊含换班关键词次数'
+  - '用户单聊含请假关键词次数'
+  - '用户单聊含补课关键词次数'
+  - '用户单聊含停课关键词次数'
+  - '用户单聊含生病关键词次数'
+  - '用户单聊含换班关键词次数'
+  - 'LA群聊含请假关键词次数'
+  - 'LA群聊含补课关键词次数'
+  - 'LA群聊含停课关键词次数'
+  - 'LA群聊含生病关键词次数'
+  - 'LA群聊含换班关键词次数'
+  - '教师群聊含请假关键词次数'
+  - '教师群聊含补课关键词次数'
+  - '教师群聊含停课关键词次数'
+  - '教师群聊含生病关键词次数'
+  - '教师群聊含换班关键词次数'
+  - '用户群聊含请假关键词次数'
+  - '用户群聊含补课关键词次数'
+  - '用户群聊含停课关键词次数'
+  - '用户群聊含生病关键词次数'
+  - '用户群聊含换班关键词次数'

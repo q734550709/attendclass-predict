@@ -59,7 +59,7 @@ def load_raw_data(data_path: str, columns_to_read: list, chunk_size: int, sample
 
 def calculate_label(df: pd.DataFrame, target_column: str, label_columns: list) -> pd.DataFrame:
     # 在进行数据平衡之前计算label
-    df[target_column] = df[label_columns].fillna(0).prod(axis=1)
+    df[target_column] = 1-df[label_columns].fillna(0).prod(axis=1) # 1-乘积，即有一个为0则为1
     return df
 
 def balance_and_merge_data(sampled_df: pd.DataFrame, unsampled_df: pd.DataFrame, target_column: str = 'label', test_size: float = 0.3, random_state: int = 42) -> pd.DataFrame:
