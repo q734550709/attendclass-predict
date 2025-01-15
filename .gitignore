@@ -71,6 +71,9 @@ experiments/*/metrics/*     # 实验指标目录
 logs/                 # 日志目录
 *.logs                # 日志文件
 
+# 忽略数据配置文件
+configs/base/data.yaml
+
 # 操作系统生成的文件
 .DS_Store             # macOS目录元数据
 .DS_Store?            # macOS目录元数据

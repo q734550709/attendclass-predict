@@ -1,23 +1,57 @@
-model:
-  name: "AttendancePredictor"
-  type: "RandomForest"
-  params:
-    n_estimators: 100
-    max_depth: 10
-    min_samples_split: 2
-    min_samples_leaf: 1
-    random_state: 42
+models:
+  logistic_reg:
+    params:
+      penalty: "l2"  # 正则化惩罚项
+      C: 1.0  # 正则化强度的倒数
+      solver: "lbfgs"  # 优化算法
+      max_iter: 100  # 最大迭代次数
+      random_state: 42  # 随机种子
 
-  # 模型输入特征配置
-  features:
-    - name: "student_history"
-      type: "numerical"
-    - name: "course_info"
-      type: "categorical"
-    - name: "time_features"
-      type: "temporal"
+  decision_tree:
+    params:
+      criterion: "gini"  # 分裂节点的标准
+      max_depth: 10  # 树的最大深度
+      min_samples_split: 2  # 内部节点再划分所需最小样本数
+      min_samples_leaf: 1  # 叶子节点最少样本数
+      random_state: 42  # 随机种子
 
-  # 模型输出配置
-  output:
-    type: "binary"
-    threshold: 0.5 
+  random_forest:
+    params:
+      n_estimators: 100  # 树的数量
+      max_depth: 10  # 树的最大深度
+      min_samples_split: 2  # 内部节点再划分所需最小样本数
+      min_samples_leaf: 1  # 叶子节点最少样本数
+      random_state: 42  # 随机种子
+
+  gbdt:
+    params:
+      n_estimators: 100  # 树的数量
+      learning_rate: 0.1  # 学习率
+      max_depth: 3  # 树的最大深度
+      min_samples_split: 2  # 内部节点再划分所需最小样本数
+      min_samples_leaf: 1  # 叶子节点最少样本数
+      random_state: 42  # 随机种子
+
+  xgboost:
+    params:
+      n_estimators: 100  # 树的数量
+      learning_rate: 0.1  # 学习率
+      max_depth: 3  # 树的最大深度
+      min_child_weight: 1  # 子节点所需的最小权重和
+      subsample: 0.8  # 训练每棵树使用的数据比例
+      colsample_bytree: 0.8  # 每棵树使用的特征比例
+      random_state: 42  # 随机种子
+
+  mlp:
+    params:
+      hidden_layer_sizes: (100,)  # 隐藏层神经元个数
+      activation: "relu"
+  
+  lstm:
+    params:
+      hidden_size: 128  # 隐藏层神经元个数
+      num_layers: 2  # LSTM层数
+      bidirectional: False  # 是否双向
+      dropout: 0.5  # dropout概率
+      batch_first: True  # 输入输出张量是否包含batch_size维度
+      random_state: 42  # 随机种子

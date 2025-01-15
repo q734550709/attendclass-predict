@@ -25,17 +25,17 @@ split_data_config:
 
 # 输出文档配置
 output_config:
-  interim_file_name: "database_balanced"
+  interim_file_name: "database_balanced_large"
   process_file_name:
-    - "X_train"
-    - "X_test"
-    - "y_train"
-    - "y_test"
+    - "X_train_large"
+    - "X_test_large"
+    - "y_train_large"
+    - "y_test_large"
 
 # 数据处理配置
 data_processing_config:
   chunk_size: 1000
-  sample_frac: 0.01
+  sample_frac: 0.1
   random_state: 42
   test_size: 0.3
   target_column: "label"

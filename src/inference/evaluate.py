@@ -102,34 +102,6 @@ class ModelEvaluator:
         output_file = Path(output_path) / 'pr_curve.png'
         plt.savefig(output_file)
         plt.close()
-        
-    def analyze_errors(self, y_true: np.ndarray, y_pred: np.ndarray, 
-                      data: pd.DataFrame) -> pd.DataFrame:
-        """分析预测错误"""
-        # 创建错误分析DataFrame
-        error_df = data.copy()
-        error_df['true_label'] = y_true
-        error_df['predicted_label'] = y_pred
-        error_df['is_error'] = (y_true != y_pred).astype(int)
-        
-        # 计算各特征的错误率
-        error_analysis = {}
-        
-        # 分析分类特征
-        categorical_features = self._get_categorical_features(error_df)
-        for feature in categorical_features:
-            error_analysis[feature] = error_df.groupby(feature)['is_error'].mean()
-            
-        # 分析数值特征
-        numerical_features = self._get_numerical_features(error_df)
-        for feature in numerical_features:
-            error_analysis[feature] = {
-                'correlation': error_df[feature].corr(error_df['is_error']),
-                'error_mean': error_df[error_df['is_error'] == 1][feature].mean(),
-                'correct_mean': error_df[error_df['is_error'] == 0][feature].mean()
-            }
-            
-        return pd.DataFrame(error_analysis)
     
     def save_results(self, output_path: str):
         """保存评估结果"""
@@ -142,14 +114,6 @@ class ModelEvaluator:
             json.dump(self.metrics, f, indent=4)
             
         logger.info(f"Evaluation results saved to {output_dir}")
-    
-    def _get_categorical_features(self, df: pd.DataFrame) -> List[str]:
-        """获取分类特征"""
-        return df.select_dtypes(include=['object', 'category']).columns.tolist()
-    
-    def _get_numerical_features(self, df: pd.DataFrame) -> List[str]:
-        """获取数值特征"""
-        return df.select_dtypes(include=['int64', 'float64']).columns.tolist()
 
 def main():
     """主函数"""
@@ -187,9 +151,6 @@ def main():
     evaluator.plot_confusion_matrix(y_test, y_pred, args.output_path)
     evaluator.plot_roc_curve(y_test, y_prob, args.output_path)
     evaluator.plot_precision_recall_curve(y_test, y_prob, args.output_path)
-    
-    # 错误分析
-    error_analysis = evaluator.analyze_errors(y_test, y_pred, X_test)
     
     # 保存结果
     evaluator.save_results(args.output_path)
