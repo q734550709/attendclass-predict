@@ -1,0 +1,13 @@
+2025-01-19 00:53:48,177 - __main__ - INFO - Starting model training
+2025-01-19 00:53:59,396 - __main__ - INFO - Cross-validation results:               metrics_type  accuracy  precision    recall        f1   auc_roc
+0  cross_validation_fold_1  0.538587   0.535763  0.580315  0.557150  0.552136
+1  cross_validation_fold_2  0.540264   0.536471  0.585641  0.559979  0.553658
+2  cross_validation_fold_3  0.538540   0.534728  0.581825  0.557283  0.554220
+3  cross_validation_fold_4  0.539658   0.537614  0.584858  0.560242  0.555011
+4  cross_validation_fold_5  0.543130   0.539964  0.579870  0.559206  0.557367
+5    cross_validation_mean  0.540036   0.536908  0.582502  0.558772  0.554479
+6     cross_validation_std  0.001680   0.001794  0.002349  0.001315  0.001724
+2025-01-19 00:53:59,551 - __main__ - INFO - Train evaluation results:   metrics_type  accuracy  precision    recall        f1   auc_roc
+0        train  0.540688   0.537911  0.577305  0.556912  0.555053
+2025-01-19 00:53:59,552 - __main__ - INFO - Model saved to ../../models/trained/exp_preview/baseline_logistic_regression_train_model.joblib
+2025-01-19 00:53:59,552 - __main__ - INFO - Cross-validation and evaluation results saved to ../../experiments/exp_preview/metrics/baseline_logistic_regression_train_evaluation_results.csv

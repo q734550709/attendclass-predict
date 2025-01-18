@@ -326,5 +326,7 @@ def main():
 
     logger.info("Data processing completed")
 
+    # 打印数据集信息
+    # print(X_train.info())
 if __name__ == "__main__":
     main() 

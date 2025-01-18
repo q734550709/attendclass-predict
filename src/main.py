@@ -5,11 +5,11 @@ import yaml
 import sys
 
 # 添加src目录到Python路径
-sys.path.append(str(Path(__file__).parent.parent))
+sys.path.append(str(Path(__file__).parent))
 
-from src.data.make_dataset import main as make_dataset
-from src.models.training.train import main as train_model
-from src.models.inference.predict import main as predict
+from training.train import main as train_model
+from training.evaluate import main as evaluate_model
+from training.hyperparameter_tuning import main as tune_hyperparameters
 
 # 设置日志
 logging.basicConfig(level=logging.INFO)
@@ -38,27 +38,31 @@ def run_pipeline(args):
     # 设置环境
     setup_environment(config)
     
-    if args.step == 'all' or args.step == 'data':
-        logger.info("Starting data processing step")
-        make_dataset()
-    
-    if args.step == 'all' or args.step == 'train':
-        logger.info("Starting model training step")
-        train_model()
-    
-    if args.step == 'all' or args.step == 'predict':
-        logger.info("Starting prediction step")
-        predict()
+    steps = args.step.split(',')
+    for step in steps:
+        if step == 'train':
+            logger.info("Starting model training step")
+            train_model(args.config)
+        elif step == 'evaluate':
+            logger.info("Starting model evaluation step")
+            evaluate_model(args.config)
+        elif step == 'tune':
+            logger.info("Starting hyperparameter tuning step")
+            tune_hyperparameters(args.config)
 
 def main():
     parser = argparse.ArgumentParser(description='课堂出勤预测系统')
     parser.add_argument('--config', type=str, default='configs/base/model.yaml',
                       help='配置文件路径')
-    parser.add_argument('--step', type=str, choices=['all', 'data', 'train', 'predict'],
-                      default='all', help='运行的步骤')
+    parser.add_argument('--step', type=str, choices=['train', 'evaluate', 'tune', 'all'],
+                      required=True, help='运行的步骤')
     
     args = parser.parse_args()
+    
+    if args.step == 'all':
+        args.step = 'train,tune,evaluate'
+    
     run_pipeline(args)
 
 if __name__ == "__main__":
-    main() 
+    main()

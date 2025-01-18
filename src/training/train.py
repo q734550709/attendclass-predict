@@ -1,15 +1,31 @@
+import warnings
+# 忽略所有警告
+warnings.filterwarnings("ignore")
+
+import matplotlib.font_manager as fm
+# 查找并设置中文字体
+font_path = fm.findfont("SimHei")
+plt.rcParams['font.sans-serif'] = ['SimHei']  # 设置字体为SimHei
+plt.rcParams['axes.unicode_minus'] = False    # 解决负号显示问题
+
+import sys
+from pathlib import Path
+# 添加src目录到Python路径
+sys.path.append(str(Path(__file__).parent.parent))
+
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
+from datetime import datetime
+from models.factory import ModelFactory
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
+from sklearn.model_selection import KFold
 import yaml
 import logging
 import joblib
-from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, List, Tuple, Any
+
 
 # 设置日志
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class ModelTrainer:
@@ -18,103 +34,203 @@ class ModelTrainer:
         self.config = self._load_config(config_path)
         self.model = self._initialize_model()
         self.metrics = {}
+        # 从配置文件中获取实验目录和实验名称
+        self.exp_name = self.config['experiment']['name']
+        self.exp_dir = self.config['output']['exp_dir']
+        self.exp_model_dir = self.config['output']['exp_model_dir']
+
+        # 创建实验目录
+        self.exp_path = Path(self.exp_dir)
+        self.exp_path.mkdir(parents=True, exist_ok=True)
+
+        # 创建模型目录
+        self.exp_model_path = Path(self.exp_model_dir)
+        self.exp_model_path.mkdir(parents=True, exist_ok=True)
         
+        # 设置日志
+        self.setup_logging()
+
     def _load_config(self, config_path: str) -> Dict:
         """加载配置文件"""
         with open(config_path, 'r') as f:
             return yaml.safe_load(f)
     
+    def setup_logging(self) -> None:
+        """设置日志"""
+        log_config = self.config.get('logging', {})
+        log_level = getattr(logging, log_config.get('level', 'INFO'))
+        
+        # 配置根日志记录器
+        logging.basicConfig(
+            level=log_level,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        
+        # 如果配置了文件日志
+        if log_config.get('save_path'):
+            log_path = Path(log_config['save_path'])
+            log_path.mkdir(parents=True, exist_ok=True)
+            
+            file_handler = logging.FileHandler(
+                log_path / f"training_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+            )
+            file_handler.setFormatter(
+                logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            )
+            logging.getLogger().addHandler(file_handler)
+
     def _initialize_model(self) -> Any:
         """初始化模型"""
         model_config = self.config['model']
-        if model_config['type'] == 'RandomForest':
-            return RandomForestClassifier(**model_config['params'])
-        else:
-            raise ValueError(f"Unsupported model type: {model_config['type']}")
+        return ModelFactory.create_model(model_config['type'], model_config['params'])
     
-    def load_data(self) -> tuple:
+    def load_data(self) -> Tuple[pd.DataFrame, pd.Series, pd.Series]:
         """加载训练数据"""
-        data_path = self.config['data']['paths']['processed']
+        data_paths = self.config['data']['paths']
         
-        train_df = pd.read_csv(f"{data_path}/train.csv")
-        val_df = pd.read_csv(f"{data_path}/val.csv")
-        test_df = pd.read_csv(f"{data_path}/test.csv")
+        # 读取数据
+        X_train = pd.read_csv(data_paths['X_train'])
+        # 保存用户id
+        user_ids = X_train['用户id']
+        # 删除用户id后的数据作为特征
+        X_train = X_train.drop(columns=['用户id'])
+
+        # 读取标签
+        y_train = pd.read_csv(data_paths['y_train']).squeeze()
         
-        # 分离特征和标签
-        X_train = train_df.drop('target', axis=1)
-        y_train = train_df['target']
-        X_val = val_df.drop('target', axis=1)
-        y_val = val_df['target']
-        X_test = test_df.drop('target', axis=1)
-        y_test = test_df['target']
-        
-        return (X_train, y_train), (X_val, y_val), (X_test, y_test)
+        return X_train, y_train, user_ids
     
-    def train(self, X_train: pd.DataFrame, y_train: pd.Series):
+    def train(self, X_train: pd.DataFrame, y_train: pd.Series) -> None:
         """训练模型"""
         logger.info("Starting model training")
         self.model.fit(X_train, y_train)
     
-    def evaluate(self, X: pd.DataFrame, y: pd.Series, dataset_type: str = 'val') -> Dict:
-        """评估模型"""
-        logger.info(f"Evaluating model on {dataset_type} set")
+    def perform_cross_validation(self, X: pd.DataFrame, y: pd.Series) -> pd.DataFrame:
+        """执行交叉验证"""
+        cv_config = self.config['cross_validation']
+        n_splits = cv_config.get('n_splits', 5)
+        random_state = self.config['model']['params'].get('random_state', 42)
         
-        # 获取预测结果
+        kf = KFold(n_splits=n_splits, shuffle=True, random_state=random_state)
+        
+        metrics = {
+            'metrics_type': [],
+            'accuracy': [],
+            'precision': [],
+            'recall': [],
+            'f1': [],
+            'auc_roc': []
+        }
+        
+        for fold, (train_idx, val_idx) in enumerate(kf.split(X, y), 1):
+            X_train, X_val = X.iloc[train_idx], X.iloc[val_idx]
+            y_train, y_val = y.iloc[train_idx], y.iloc[val_idx]
+            
+            # 训练模型
+            self.model.fit(X_train, y_train)
+            
+            # 预测
+            y_pred = self.model.predict(X_val)
+            y_prob = self.model.predict_proba(X_val)[:, 1]
+            
+            # 计算指标
+            metrics['metrics_type'].append(f'cross_validation_fold_{fold}')
+            metrics['accuracy'].append(accuracy_score(y_val, y_pred))
+            metrics['precision'].append(precision_score(y_val, y_pred))
+            metrics['recall'].append(recall_score(y_val, y_pred))
+            metrics['f1'].append(f1_score(y_val, y_pred))
+            metrics['auc_roc'].append(roc_auc_score(y_val, y_prob))
+        
+        # 计算平均值和标准差
+        metrics['metrics_type'].append('cross_validation_mean')
+        metrics['metrics_type'].append('cross_validation_std')
+        
+        for metric in ['accuracy', 'precision', 'recall', 'f1', 'auc_roc']:
+            mean_value = np.mean(metrics[metric])
+            std_value = np.std(metrics[metric])
+            metrics[metric].append(mean_value)
+            metrics[metric].append(std_value)
+        
+        cv_results = pd.DataFrame(metrics)
+        
+        logger.info(f"Cross-validation results: {cv_results}")
+
+        return cv_results
+
+    def evaluate(self, X: pd.DataFrame, y: pd.Series) -> pd.DataFrame:
+        """评估模型"""
         y_pred = self.model.predict(X)
         y_prob = self.model.predict_proba(X)[:, 1]
         
-        # 计算评估指标
         metrics = {
-            'accuracy': accuracy_score(y, y_pred),
-            'precision': precision_score(y, y_pred),
-            'recall': recall_score(y, y_pred),
-            'f1': f1_score(y, y_pred),
-            'auc_roc': roc_auc_score(y, y_prob)
+            'metrics_type': ['train'],
+            'accuracy': [accuracy_score(y, y_pred)],
+            'precision': [precision_score(y, y_pred)],
+            'recall': [recall_score(y, y_pred)],
+            'f1': [f1_score(y, y_pred)],
+            'auc_roc': [roc_auc_score(y, y_prob)]
         }
         
-        # 记录评估结果
-        self.metrics[dataset_type] = metrics
+        metrics_result = pd.DataFrame(metrics)
         
-        # 输出评估结果
-        for metric_name, value in metrics.items():
-            logger.info(f"{dataset_type} {metric_name}: {value:.4f}")
-        
-        return metrics
+        logger.info(f"Train evaluation results: {metrics_result}")
+
+        return metrics_result
     
-    def save_model(self, exp_dir: str):
-        """保存模型和评估结果"""
-        # 创建实验目录
-        exp_path = Path(exp_dir)
-        exp_path.mkdir(parents=True, exist_ok=True)
-        
-        # 保存模型
-        model_path = exp_path / 'model.joblib'
+    def save_model(self) -> None:
+        """保存模型结果"""
+        model_path = self.exp_model_path / f'{self.exp_name}_train_model.joblib'
         joblib.dump(self.model, model_path)
         logger.info(f"Model saved to {model_path}")
-        
-        # 保存评估指标
-        metrics_path = exp_path / 'metrics.yaml'
-        with open(metrics_path, 'w') as f:
-            yaml.dump(self.metrics, f)
-        logger.info(f"Metrics saved to {metrics_path}")
 
-def main():
+    def save_cvresults_to_csv(self, cv_results: pd.DataFrame) -> None:
+        """保存交叉验证结果"""
+        cv_results_path = self.exp_path / f'{self.exp_name}_cv_results.csv'
+        cv_results.to_csv(cv_results_path, index=False)
+        logger.info(f"Cross-validation results saved to {cv_results_path}")
+    
+    def save_evaluation_to_csv(self, evaluation: pd.DataFrame) -> None:
+        """保存评估结果"""
+        evaluation_path = self.exp_path / f'{self.exp_name}_train_evaluation.csv'
+        evaluation.to_csv(evaluation_path, index=False)
+        logger.info(f"Evaluation results saved to {evaluation_path}")
+
+    def save_results_to_csv(self, cv_results: pd.DataFrame, evaluation: pd.DataFrame) -> None:
+        """保存交叉验证和评估结果"""
+        results_path = self.exp_path / f'{self.exp_name}_train_evaluation_results.csv'
+        
+        # 合并结果
+        combined_results = pd.concat([cv_results, evaluation], ignore_index=True)
+        combined_results.to_csv(results_path, index=False)
+        
+        logger.info(f"Cross-validation and evaluation results saved to {results_path}")
+
+def main(config_path: str) -> None:
     """主函数"""
     # 初始化训练器
-    trainer = ModelTrainer("configs/base/model.yaml")
+    trainer = ModelTrainer(config_path)
     
     # 加载数据
-    (X_train, y_train), (X_val, y_val), (X_test, y_test) = trainer.load_data()
-    
+    X_train, y_train, user_ids = trainer.load_data()
     # 训练模型
     trainer.train(X_train, y_train)
-    
+    # 交叉验证
+    cv_results = trainer.perform_cross_validation(X_train, y_train)
+
     # 评估模型
-    trainer.evaluate(X_val, y_val, 'validation')
-    trainer.evaluate(X_test, y_test, 'test')
+    metrics = trainer.evaluate(X_train, y_train)
     
-    # 保存模型和评估结果
-    trainer.save_model("experiments/exp001")
+    # 保存模型
+    trainer.save_model()
+    # 保存交叉验证结果
+    # trainer.save_cvresults_to_csv(cv_results)
+    # 保存评估结果
+    # trainer.save_evaluation_to_csv(metrics)
+
+    # 保存交叉验证和评估结果
+    trainer.save_results_to_csv(cv_results, metrics)
 
 if __name__ == "__main__":
-    main() 
+    # 加载数据配置
+    config_path = "../../configs/experiments/exp_preview.yaml"
+    main(config_path)

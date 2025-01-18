@@ -82,3 +82,9 @@ configs/base/data.yaml
 .Trashes             # 废纸篓文件
 ehthumbs.db          # Windows缩略图缓存
 Thumbs.db            # Windows缩略图数据库
+
+# 忽略所有 .csv 文件
+*.csv
+
+# 忽略所有 .xlsx 文件
+*.xlsx
