@@ -200,7 +200,7 @@ def main(config_path: str, model_type: str) -> None:
     exp_model_dir = config['output']['exp_model_dir']
     
     # 创建实验目录
-    exp_path = os.path.join(current_dir, exp_dir)
+    exp_path = os.path.join(current_dir, exp_dir, model_type)
     os.makedirs(exp_path, exist_ok=True)
     
     # 创建模型目录
@@ -226,24 +226,32 @@ def main(config_path: str, model_type: str) -> None:
     
     # 对每个样本的预测概率进行shap值计算
     explainer = shap.Explainer(model, X_test)
-    explainer_test = explainer(X_test, check_additivity=False)
+    # 对每个样本的预测概率进行shap值计算
+    if isinstance(explainer, shap.TreeExplainer):
+        explainer_test = explainer(X_test, check_additivity=False)
+    else:
+        explainer_test = explainer(X_test)
+        
     shap_values = explainer_test.values
     base_values = explainer_test.base_values
 
+    print(base_values.shape)
+
     # 获取特征名称
     feature_names = X_test.columns
+    feature_len = len(feature_names)
 
     # 计算每个样本的前10个特征的shap值贡献
     shap_results = []
     for i in range(len(X_test)):
         # 获取单个样本的预测概率
-        predicted_proba = predict_proba_result[i]
+        predicted_proba = y_prob[i]
         # 获取预测类别
         predicted_class = np.argmax(predicted_proba)
         # 获取对应类别的基础值
         base_value = base_values[i][predicted_class]
         # 获取对应类别的shap值
-        shap_value = shap_values[i].T[predicted_class]
+        shap_value = shap_values[i].T[predicted_class] + base_value/feature_len
         # 将特征名称和shap值对应起来
         shap_feature_importance = dict(zip(feature_names, shap_value))
         # 根据绝对值排序，获取前10个特征
@@ -251,7 +259,7 @@ def main(config_path: str, model_type: str) -> None:
         # 获取排序后的原始 SHAP 值
         sorted_features = [(feature, shap_feature_importance[feature]) for feature, _ in sorted_features]
         # 创建一个字典来保存结果, 包括基础值和前10个特征的贡献值
-        instance_result = {'Base_shap_value': base_value}
+        instance_result = {}
         # 保存前10个特征的名称和贡献值
         for idx, (feature, contribution) in enumerate(sorted_features):
             instance_result[f'Feature_{idx+1}_Name'] = feature
