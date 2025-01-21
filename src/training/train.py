@@ -2,16 +2,10 @@ import warnings
 # 忽略所有警告
 warnings.filterwarnings("ignore")
 
-import matplotlib.font_manager as fm
-# 查找并设置中文字体
-font_path = fm.findfont("SimHei")
-plt.rcParams['font.sans-serif'] = ['SimHei']  # 设置字体为SimHei
-plt.rcParams['axes.unicode_minus'] = False    # 解决负号显示问题
-
 import sys
-from pathlib import Path
+import os
 # 添加src目录到Python路径
-sys.path.append(str(Path(__file__).parent.parent))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
 
 import pandas as pd
 import numpy as np
@@ -31,6 +25,9 @@ logger = logging.getLogger(__name__)
 class ModelTrainer:
     def __init__(self, config_path: str):
         """初始化模型训练器"""
+        # 获取当前脚本文件所在的目录
+        self.current_dir = os.path.dirname(os.path.abspath(__file__))
+        # 加载配置文件
         self.config = self._load_config(config_path)
         self.model = self._initialize_model()
         self.metrics = {}
@@ -40,12 +37,12 @@ class ModelTrainer:
         self.exp_model_dir = self.config['output']['exp_model_dir']
 
         # 创建实验目录
-        self.exp_path = Path(self.exp_dir)
-        self.exp_path.mkdir(parents=True, exist_ok=True)
+        self.exp_path = os.path.join(self.current_dir, self.exp_dir)
+        os.makedirs(self.exp_path, exist_ok=True)
 
         # 创建模型目录
-        self.exp_model_path = Path(self.exp_model_dir)
-        self.exp_model_path.mkdir(parents=True, exist_ok=True)
+        self.exp_model_path = os.path.join(self.current_dir, self.exp_model_dir)
+        os.makedirs(self.exp_model_path, exist_ok=True)
         
         # 设置日志
         self.setup_logging()
@@ -68,11 +65,13 @@ class ModelTrainer:
         
         # 如果配置了文件日志
         if log_config.get('save_path'):
-            log_path = Path(log_config['save_path'])
-            log_path.mkdir(parents=True, exist_ok=True)
+
+            relative_log_path = log_config['save_path']
+            log_path = os.path.normpath(os.path.join(self.current_dir, relative_log_path))
+            os.makedirs(log_path, exist_ok=True)
             
             file_handler = logging.FileHandler(
-                log_path / f"training_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+                os.path.join(log_path, f"training_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
             )
             file_handler.setFormatter(
                 logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -86,17 +85,17 @@ class ModelTrainer:
     
     def load_data(self) -> Tuple[pd.DataFrame, pd.Series, pd.Series]:
         """加载训练数据"""
-        data_paths = self.config['data']['paths']
+        relative_data_path = self.config['data']['paths']
         
         # 读取数据
-        X_train = pd.read_csv(data_paths['X_train'])
+        X_train = pd.read_csv(os.path.normpath(os.path.join(self.current_dir, relative_data_path['X_train'])))
         # 保存用户id
         user_ids = X_train['用户id']
         # 删除用户id后的数据作为特征
         X_train = X_train.drop(columns=['用户id'])
 
         # 读取标签
-        y_train = pd.read_csv(data_paths['y_train']).squeeze()
+        y_train = pd.read_csv(os.path.normpath(os.path.join(self.current_dir, relative_data_path['y_train']))).squeeze()
         
         return X_train, y_train, user_ids
     
@@ -179,26 +178,33 @@ class ModelTrainer:
     
     def save_model(self) -> None:
         """保存模型结果"""
-        model_path = self.exp_model_path / f'{self.exp_name}_train_model.joblib'
+        relative_model_path = os.path.join(self.exp_model_path, f'{self.exp_name}_train_model.joblib')
+        model_path = os.path.normpath(os.path.join(self.current_dir, relative_model_path))
+
         joblib.dump(self.model, model_path)
         logger.info(f"Model saved to {model_path}")
 
     def save_cvresults_to_csv(self, cv_results: pd.DataFrame) -> None:
         """保存交叉验证结果"""
-        cv_results_path = self.exp_path / f'{self.exp_name}_cv_results.csv'
+        relative_cv_results_path = os.path.join(self.exp_path, f'{self.exp_name}_cv_results.csv')
+        cv_results_path = os.path.normpath(os.path.join(self.current_dir, relative_cv_results_path))
+
         cv_results.to_csv(cv_results_path, index=False)
         logger.info(f"Cross-validation results saved to {cv_results_path}")
     
     def save_evaluation_to_csv(self, evaluation: pd.DataFrame) -> None:
         """保存评估结果"""
-        evaluation_path = self.exp_path / f'{self.exp_name}_train_evaluation.csv'
+        relative_evaluation_path = os.path.join(self.exp_path, f'{self.exp_name}_train_evaluation.csv')
+        evaluation_path = os.path.normpath(os.path.join(self.current_dir, relative_evaluation_path))
+
         evaluation.to_csv(evaluation_path, index=False)
         logger.info(f"Evaluation results saved to {evaluation_path}")
 
     def save_results_to_csv(self, cv_results: pd.DataFrame, evaluation: pd.DataFrame) -> None:
         """保存交叉验证和评估结果"""
-        results_path = self.exp_path / f'{self.exp_name}_train_evaluation_results.csv'
-        
+        relative_results_path = os.path.join(self.exp_path, f'{self.exp_name}_train_evaluation_results.csv')
+        results_path = os.path.normpath(os.path.join(self.current_dir, relative_results_path))
+
         # 合并结果
         combined_results = pd.concat([cv_results, evaluation], ignore_index=True)
         combined_results.to_csv(results_path, index=False)
@@ -229,6 +235,8 @@ def main(config_path: str) -> None:
 
     # 保存交叉验证和评估结果
     trainer.save_results_to_csv(cv_results, metrics)
+
+    return cv_results, metrics
 
 if __name__ == "__main__":
     # 加载数据配置

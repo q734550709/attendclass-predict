@@ -1,4 +1,0 @@
-2025-01-19 01:03:29,359 - __main__ - INFO - Test evaluation results:   metrics_type  accuracy  precision    recall        f1   auc_roc
-0         test  0.534107   0.399194  0.585647  0.474771  0.561412
-2025-01-19 01:03:29,359 - __main__ - INFO - Evaluation results saved to ../../experiments/exp_preview/metrics/baseline_logistic_regression_test_evaluation.csv
-2025-01-19 01:03:29,584 - __main__ - INFO - Evaluation visualizations saved
