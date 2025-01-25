@@ -37,7 +37,7 @@ class ModelTrainer:
         self.exp_model_dir = self.config['output']['exp_model_dir']
 
         # 创建实验目录
-        self.exp_path = os.path.join(self.current_dir, self.exp_dir)
+        self.exp_path = os.path.join(self.current_dir, self.exp_dir, 'train_cv_results')
         os.makedirs(self.exp_path, exist_ok=True)
 
         # 创建模型目录
@@ -97,12 +97,15 @@ class ModelTrainer:
         # 读取标签
         y_train = pd.read_csv(os.path.normpath(os.path.join(self.current_dir, relative_data_path['y_train']))).squeeze()
         
+        logger.info("Data loaded successfully")
+
         return X_train, y_train, user_ids
     
     def train(self, X_train: pd.DataFrame, y_train: pd.Series) -> None:
         """训练模型"""
-        logger.info("Starting model training")
         self.model.fit(X_train, y_train)
+
+        logger.info("Model training completed")
     
     def perform_cross_validation(self, X: pd.DataFrame, y: pd.Series) -> pd.DataFrame:
         """执行交叉验证"""
@@ -202,7 +205,7 @@ class ModelTrainer:
 
     def save_results_to_csv(self, cv_results: pd.DataFrame, evaluation: pd.DataFrame) -> None:
         """保存交叉验证和评估结果"""
-        relative_results_path = os.path.join(self.exp_path, f'{self.exp_name}_train_evaluation_results.csv')
+        relative_results_path = os.path.join(self.exp_path, f'{self.exp_name}_train_cv_results.csv')
         results_path = os.path.normpath(os.path.join(self.current_dir, relative_results_path))
 
         # 合并结果
@@ -235,6 +238,9 @@ def main(config_path: str) -> None:
 
     # 保存交叉验证和评估结果
     trainer.save_results_to_csv(cv_results, metrics)
+
+    # 移除控制台处理程序
+    logging.getLogger().handlers = []
 
     return cv_results, metrics
 

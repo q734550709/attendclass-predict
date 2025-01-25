@@ -92,9 +92,59 @@ class ModelEvaluator:
         # 用户表添加标签
         user_df['标签'] = y_test
         
-
+        logger.info(f"Test data loaded")
         # 返回测试数据
         return X_test, y_test, user_df
+
+    
+    def calculate_shap_values(model: Any, X_test: pd.DataFrame, y_prob: np.ndarray) -> pd.DataFrame:
+        # 对每个样本的预测概率进行shap值计算
+        explainer = shap.Explainer(model, X_test)
+        # 对每个样本的预测概率进行shap值计算
+        if isinstance(explainer, shap.TreeExplainer):
+            explainer_test = explainer(X_test, check_additivity=False)
+        else:
+            explainer_test = explainer(X_test)
+            
+        shap_values = explainer_test.values
+        base_values = explainer_test.base_values
+
+        # 获取特征名称
+        feature_names = X_test.columns
+        feature_len = len(feature_names)
+
+        # 计算每个样本的前10个特征的shap值贡献
+        shap_results = []
+        for i in range(len(X_test)):
+            # 获取单个样本的预测概率
+            predicted_proba = y_prob[i]
+            # 获取预测类别
+            predicted_class = np.argmax(predicted_proba)
+            # 获取对应类别的基础值
+            base_value = base_values[i][predicted_class]
+            # 获取对应类别的shap值
+            shap_value = shap_values[i].T[predicted_class] + base_value/feature_len
+            # 将特征名称和shap值对应起来
+            shap_feature_importance = dict(zip(feature_names, shap_value))
+            # 根据绝对值排序，获取前10个特征
+            sorted_features = sorted(shap_feature_importance.items(), key=lambda x: abs(x[1]), reverse=True)[:10]
+            # 获取排序后的原始 SHAP 值
+            sorted_features = [(feature, shap_feature_importance[feature]) for feature, _ in sorted_features]
+            # 创建一个字典来保存结果, 包括基础值和前10个特征的贡献值
+            instance_result = {}
+            # 保存前10个特征的名称和贡献值
+            for idx, (feature, contribution) in enumerate(sorted_features):
+                instance_result[f'Feature_{idx+1}_Name'] = feature
+                instance_result[f'Feature_{idx+1}_Contribution'] = contribution
+            shap_results.append(instance_result)
+        
+        # 将结果转换为DataFrame
+        shap_df = pd.DataFrame(shap_results)
+        
+        logger.info(f"SHAP values calculated")
+
+        return shap_df
+
 
     def evaluate(self, y_test: pd.Series, y_pred: np.ndarray, y_prob: np.ndarray) -> pd.DataFrame:
         """评估模型"""
@@ -127,6 +177,8 @@ class ModelEvaluator:
         output_file = os.path.join(output_path, f'{exp_name}_{model_type}_confusion_matrix.png')
         plt.savefig(output_file)
         plt.close()
+
+        logger.info(f"Confusion matrix saved to {output_file}")
         
     def plot_roc_curve(self, y_true: np.ndarray, y_prob: np.ndarray, 
                       output_path: str, exp_name: str, model_type: str) -> None:
@@ -147,6 +199,8 @@ class ModelEvaluator:
         output_file = os.path.join(output_path, f'{exp_name}_{model_type}_roc_curve.png')
         plt.savefig(output_file)
         plt.close()
+
+        logger.info(f"ROC curve saved to {output_file}")
     
     def plot_feature_importance(self, model: Any, feature_names: List[str], 
                                 output_path: str, exp_name: str, model_type: str) -> None:
@@ -183,6 +237,8 @@ class ModelEvaluator:
             index=False
         )
 
+        logger.info(f"Feature importance saved to {output_file}")
+
 def main(config_path: str, model_type: str) -> None:
     """主函数"""
     # 初始化评估器
@@ -200,7 +256,7 @@ def main(config_path: str, model_type: str) -> None:
     exp_model_dir = config['output']['exp_model_dir']
     
     # 创建实验目录
-    exp_path = os.path.join(current_dir, exp_dir, model_type)
+    exp_path = os.path.join(current_dir, exp_dir, f'{model_type}_evaluate')
     os.makedirs(exp_path, exist_ok=True)
     
     # 创建模型目录
@@ -220,62 +276,23 @@ def main(config_path: str, model_type: str) -> None:
     predict_proba_result = model.predict_proba(X_test)
     y_prob = predict_proba_result[:, 1]
 
-    # 用户表添加预测标签和概率
-    user_df['预测标签'] = y_pred
-    user_df['预测概率'] = y_prob
-    
-    # 对每个样本的预测概率进行shap值计算
-    explainer = shap.Explainer(model, X_test)
-    # 对每个样本的预测概率进行shap值计算
-    if isinstance(explainer, shap.TreeExplainer):
-        explainer_test = explainer(X_test, check_additivity=False)
-    else:
-        explainer_test = explainer(X_test)
-        
-    shap_values = explainer_test.values
-    base_values = explainer_test.base_values
+    # 如果model是树模型或者MLP，计算shap值
+    if model_type in ['decision_tree', 'gbdt', 'random_forest', 'xgboost', 'lightgbm', 'mlp']:
+        # 计算shap值
+        shap_df = evaluator.calculate_shap_values(model, X_test, y_prob)
 
-    print(base_values.shape)
+        # 用户表添加预测标签和概率
+        user_df['预测标签'] = y_pred
+        user_df['预测概率'] = y_prob
 
-    # 获取特征名称
-    feature_names = X_test.columns
-    feature_len = len(feature_names)
+        # 用户表和shap值表按照列拼接
+        user_shap_df = pd.concat([user_df, shap_df], axis=1)
 
-    # 计算每个样本的前10个特征的shap值贡献
-    shap_results = []
-    for i in range(len(X_test)):
-        # 获取单个样本的预测概率
-        predicted_proba = y_prob[i]
-        # 获取预测类别
-        predicted_class = np.argmax(predicted_proba)
-        # 获取对应类别的基础值
-        base_value = base_values[i][predicted_class]
-        # 获取对应类别的shap值
-        shap_value = shap_values[i].T[predicted_class] + base_value/feature_len
-        # 将特征名称和shap值对应起来
-        shap_feature_importance = dict(zip(feature_names, shap_value))
-        # 根据绝对值排序，获取前10个特征
-        sorted_features = sorted(shap_feature_importance.items(), key=lambda x: abs(x[1]), reverse=True)[:10]
-        # 获取排序后的原始 SHAP 值
-        sorted_features = [(feature, shap_feature_importance[feature]) for feature, _ in sorted_features]
-        # 创建一个字典来保存结果, 包括基础值和前10个特征的贡献值
-        instance_result = {}
-        # 保存前10个特征的名称和贡献值
-        for idx, (feature, contribution) in enumerate(sorted_features):
-            instance_result[f'Feature_{idx+1}_Name'] = feature
-            instance_result[f'Feature_{idx+1}_Contribution'] = contribution
-        shap_results.append(instance_result)
-    
-    # 将结果转换为DataFrame
-    shap_df = pd.DataFrame(shap_results)
-    # 用户表和shap值表按照列拼接
-    user_shap_df = pd.concat([user_df, shap_df], axis=1)
+        # 保存用户表和shap值表
+        user_shap_path = os.path.join(exp_path, f'{exp_name}_{model_type}_user_shap.csv')
+        user_shap_df.to_csv(user_shap_path, index=False)
+        logger.info(f"User and SHAP values saved to {user_shap_path}")
 
-    # 保存用户表和shap值表
-    user_shap_path = os.path.join(exp_path, f'{exp_name}_{model_type}_user_shap.csv')
-    user_shap_df.to_csv(user_shap_path, index=False)
-    logger.info(f"User and SHAP values saved to {user_shap_path}")
-    
     # 评估模型
     metrics_result = evaluator.evaluate(y_test, y_pred, y_prob)
     
@@ -289,6 +306,9 @@ def main(config_path: str, model_type: str) -> None:
     evaluator.plot_roc_curve(y_test, y_prob, exp_path, exp_name, model_type)
     evaluator.plot_feature_importance(model, X_test.columns, exp_path, exp_name, model_type)    
     logger.info("Evaluation visualizations saved")
+
+    # 移除控制台处理程序
+    logging.getLogger().handlers = []
 
 if __name__ == "__main__":
     # 加载数据配置

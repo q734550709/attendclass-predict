@@ -1,8 +1,13 @@
+import warnings
+# 忽略所有警告
+warnings.filterwarnings("ignore")
+
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier
 import xgboost as xgb
+from lightgbm import LGBMClassifier
 
 class ModelFactory:
     @staticmethod
@@ -53,6 +58,13 @@ class ModelFactory:
         elif model_type == "xgboost":  # XGBoost模型
             return xgb.XGBClassifier(
                 max_depth=config.get('max_depth', 3),
+                learning_rate=config.get('learning_rate', 0.1),
+                n_estimators=config.get('n_estimators', 100),
+                random_state=config.get('random_state', 42)
+            )
+        elif model_type == "lightgbm":  # LightGBM模型
+            return LGBMClassifier(
+                max_depth=config.get('max_depth', -1),
                 learning_rate=config.get('learning_rate', 0.1),
                 n_estimators=config.get('n_estimators', 100),
                 random_state=config.get('random_state', 42)

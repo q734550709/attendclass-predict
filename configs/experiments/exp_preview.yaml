@@ -21,10 +21,10 @@ model:
 # 数据配置
 data:
   paths:
-    X_train: "../../data/processed/X_train.csv"
-    y_train: "../../data/processed/y_train.csv"
-    X_test: "../../data/processed/X_test.csv"
-    y_test: "../../data/processed/y_test.csv"
+    X_train: "../../data/processed/next_four/X_train.csv"
+    y_train: "../../data/processed/next_four/y_train.csv"
+    X_test: "../../data/processed/next_four/X_test.csv"
+    y_test: "../../data/processed/next_four/y_test.csv"
 
 # 交叉验证配置
 cross_validation:
@@ -34,6 +34,18 @@ cross_validation:
 output:
   exp_dir: "../../experiments/exp_preview/metrics"  # 实验输出目录
   exp_model_dir: "../../models/trained/exp_preview"  # 模型输出目录
+
+# 随机搜索参数配置
+random_search_params:
+  param_distributions:
+    solver: ['lbfgs','sag','saga']
+    max_iter: [100,500,1000]
+  n_iter: 5
+  scoring: "recall"
+  cv: 5
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True
 
 # 网格搜索参数配置
 grid_search_params:
@@ -45,14 +57,31 @@ grid_search_params:
   n_jobs: -1
   return_train_score : True
 
-# 随机搜索参数配置
-random_search_params:
+# HalvingRandomSearchCV参数配置
+halving_random_search_params:
   param_distributions:
-    solver: ['lbfgs','sag']
-    max_iter: [100,500]
-  n_iter: 2
+    solver: ['lbfgs','sag','saga']
+    max_iter: [100,500,1000]
+  n_candidates: 'exhaust'
+  factor: 2
+  resource: 'n_samples'
   scoring: "recall"
   cv: 5
+  refit: True
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True
+
+# HalvingGridSearchCV参数配置
+halving_grid_search_params:
+  param_grid:
+    solver: ['lbfgs','sag','saga']
+    max_iter: [100,500,1000]
+  factor: 2
+  resource: 'n_samples'
+  scoring: "recall"
+  cv: 5
+  refit: True
   n_jobs: -1
   random_state: 42
   return_train_score : True

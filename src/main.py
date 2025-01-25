@@ -8,15 +8,12 @@ import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 import argparse
-import logging
 from typing import Dict, List, Tuple, Any
 
 from training.train import main as train_model
 from training.evaluate import main as evaluate_model
 from training.hyperparameter_tuning import main as tune_hyperparameters
 
-# 设置日志
-logger = logging.getLogger(__name__)
 
 def run_pipeline(args):
     """运行完整的数据处理和训练流程"""
@@ -24,14 +21,10 @@ def run_pipeline(args):
     steps = args.step.split(',')
     for step in steps:
         if step == 'train':
-            logger.info("Starting model training step")
             train_model(args.config)
-            logger.info("Starting model evaluation step")
             evaluate_model(args.config, 'train')
         elif step == 'tune':
-            logger.info("Starting hyperparameter tuning step")
-            tune_hyperparameters(args.config, args.random)
-            logger.info("Starting model evaluation step")
+            tune_hyperparameters(args.config, args.tune_type)
             evaluate_model(args.config, 'tune')
 
 def main(config_path: str) -> None:
@@ -41,8 +34,8 @@ def main(config_path: str) -> None:
                       help='配置文件路径')
     parser.add_argument('--step', type=str, choices=['train', 'tune', 'all'],
                       default='all', help='运行的步骤')
-    parser.add_argument('--random', type=bool, default=True,
-                      help='是否使用随机搜索')
+    parser.add_argument('--tune_type', type=str, choices=['random', 'grid', 'halving_random', 'halving_grid'], 
+                      default='random', help='使用的搜参方法')
     
     args = parser.parse_args()
     
