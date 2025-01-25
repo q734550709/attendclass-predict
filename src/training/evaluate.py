@@ -97,7 +97,7 @@ class ModelEvaluator:
         return X_test, y_test, user_df
 
     
-    def calculate_shap_values(model: Any, X_test: pd.DataFrame, y_prob: np.ndarray) -> pd.DataFrame:
+    def calculate_shap_values(self, model: Any, X_test: pd.DataFrame, y_prob: np.ndarray) -> pd.DataFrame:
         # 对每个样本的预测概率进行shap值计算
         explainer = shap.Explainer(model, X_test)
         # 对每个样本的预测概率进行shap值计算
