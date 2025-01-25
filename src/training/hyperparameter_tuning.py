@@ -110,6 +110,11 @@ class HyperparameterTuning:
     def random_search_cv(self,  X_train: pd.DataFrame, y_train: pd.Series) -> Tuple[Dict, float]:
         """执行随机搜索"""
         random_search_params = self.config['random_search_params']
+        # 处理param_distributions中的range字符串
+        param_distributions = random_search_params['param_distributions']
+        param_distributions = {k: (list(eval(v)) if isinstance(v, str) and v.startswith('range') else v) for k, v in param_distributions.items()}
+        random_search_params['param_distributions'] = param_distributions
+
         random_search = RandomizedSearchCV(estimator=self.model, **random_search_params)
         random_search.fit(X_train, y_train)
         return random_search.best_estimator_, random_search.best_params_, random_search.best_score_, random_search.cv_results_
@@ -117,6 +122,11 @@ class HyperparameterTuning:
     def grid_search_cv(self, X_train: pd.DataFrame, y_train: pd.Series) -> Tuple[Dict, float]:
         """执行网格搜索"""
         grid_search_params = self.config['grid_search_params']
+        # 处理param_grid中的range字符串
+        param_grid = grid_search_params['param_grid']
+        param_grid = {k: (list(eval(v)) if isinstance(v, str) and v.startswith('range') else v) for k, v in param_grid.items()}
+        grid_search_params['param_grid'] = param_grid
+
         grid_search = GridSearchCV(estimator=self.model, **grid_search_params)
         grid_search.fit(X_train, y_train)
         return grid_search.best_estimator_, grid_search.best_params_, grid_search.best_score_, grid_search.cv_results_
@@ -124,6 +134,10 @@ class HyperparameterTuning:
     def halving_random_search_cv(self, X_train: pd.DataFrame, y_train: pd.Series) -> Tuple[Dict, float]:
         """执行随机搜索"""
         random_search_params = self.config['halving_random_search_params']
+        # 处理param_distributions中的range字符串
+        param_distributions = random_search_params['param_distributions']
+        param_distributions = {k: (list(eval(v)) if isinstance(v, str) and v.startswith('range') else v) for k, v in param_distributions.items()}
+        random_search_params['param_distributions'] = param_distributions
         random_search = HalvingRandomSearchCV(estimator=self.model, **random_search_params)
         random_search.fit(X_train, y_train)
         return random_search.best_estimator_, random_search.best_params_, random_search.best_score_, random_search.cv_results_
@@ -131,6 +145,11 @@ class HyperparameterTuning:
     def halving_grid_search_cv(self, X_train: pd.DataFrame, y_train: pd.Series) -> Tuple[Dict, float]:
         """执行网格搜索"""
         grid_search_params = self.config['halving_grid_search_params']
+        # 处理param_grid中的range字符串
+        param_grid = grid_search_params['param_grid']
+        param_grid = {k: (list(eval(v)) if isinstance(v, str) and v.startswith('range') else v) for k, v in param_grid.items()}
+        grid_search_params['param_grid'] = param_grid
+        
         grid_search = HalvingGridSearchCV(estimator=self.model, **grid_search_params)
         grid_search.fit(X_train, y_train)
         return grid_search.best_estimator_, grid_search.best_params_, grid_search.best_score_, grid_search.cv_results
