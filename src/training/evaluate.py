@@ -277,7 +277,7 @@ def main(config_path: str, model_type: str) -> None:
     y_prob = predict_proba_result[:, 1]
 
     # 如果model是树模型或者MLP，计算shap值
-    if model_type in ['decision_tree', 'gbdt', 'random_forest', 'xgboost', 'lightgbm', 'mlp']:
+    if exp_name in ['decision_tree', 'gbdt', 'random_forest', 'xgboost', 'lightgbm', 'mlp']:
         # 计算shap值
         shap_df = evaluator.calculate_shap_values(model, X_test, y_prob)
 
