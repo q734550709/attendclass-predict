@@ -71,7 +71,7 @@ class ModelEvaluator:
             )
             logging.getLogger().addHandler(file_handler)
 
-    def load_data(self) -> Tuple[pd.DataFrame, pd.Series, pd.Series]:
+    def load_data(self) -> Tuple[pd.DataFrame, pd.Series, pd.DataFrame]:
         """加载测试数据"""
         relative_data_paths = self.config['data']['paths']
 
@@ -97,14 +97,18 @@ class ModelEvaluator:
         return X_test, y_test, user_df
 
     
-    def calculate_shap_values(self, model: Any, X_test: pd.DataFrame, y_prob: np.ndarray) -> pd.DataFrame:
-        # 对每个样本的预测概率进行shap值计算
-        explainer = shap.Explainer(model, X_test)
-        # 对每个样本的预测概率进行shap值计算
-        if isinstance(explainer, shap.TreeExplainer):
+    def calculate_shap_values(self, model: Any, X_test: pd.DataFrame) -> pd.DataFrame:
+        # 根据模型类型创建解释器 
+        if self.config['experiment']['name'] in ['decision_tree', 'gbdt', 'random_forest', 'xgboost', 'lightgbm']:
+            explainer = shap.TreeExplainer(model, X_test)
             explainer_test = explainer(X_test, check_additivity=False)
-        else:
-            explainer_test = explainer(X_test)
+        elif self.config['experiment']['name'] == 'mlp':
+            # 使用 shap.sample 或 shap.kmeans 减少背景数据样本
+            background = shap.sample(X_test, 100)  # 选择 100 个样本作为背景数据
+            # 或者使用 shap.kmeans
+            # background = shap.kmeans(X_test, 100)
+            explainer = shap.KernelExplainer(model.predict, background)
+            explainer_test = explainer.shap_values(X_test)
             
         shap_values = explainer_test.values
         base_values = explainer_test.base_values
@@ -116,21 +120,34 @@ class ModelEvaluator:
         # 计算每个样本的前10个特征的shap值贡献
         shap_results = []
         for i in range(len(X_test)):
-            # 获取单个样本的预测概率
-            predicted_proba = y_prob[i]
-            # 获取预测类别
-            predicted_class = np.argmax(predicted_proba)
-            # 获取对应类别的基础值
-            base_value = base_values[i][predicted_class]
-            # 获取对应类别的shap值
-            shap_value = shap_values[i].T[predicted_class] + base_value/feature_len
+            # 处理 base_values，根据维度判断
+            if base_values.ndim == 1:
+                # base_values 形状为 (n_samples,)
+                base_value = base_values[i]
+            elif base_values.ndim == 2:
+                # base_values 形状为 (n_samples, n_classes)
+                base_value = base_values[i][1]
+            else:
+                raise ValueError("Unexpected number of dimensions in base_values")
+
+            # 处理 shap_values，根据维度判断
+            if shap_values.ndim == 2:
+                # shap_values 形状为 (n_samples, n_features)
+                shap_value = shap_values[i]
+            elif shap_values.ndim == 3:
+                # shap_values 形状为 (n_samples, n_classes, n_features)
+                shap_value = shap_values[i][1]
+            else:
+                raise ValueError("Unexpected number of dimensions in shap_values")
+
+            # 将 shap_value 与 base_value 相加
+            shap_value = shap_value + base_value/feature_len
+
             # 将特征名称和shap值对应起来
             shap_feature_importance = dict(zip(feature_names, shap_value))
             # 根据绝对值排序，获取前10个特征
             sorted_features = sorted(shap_feature_importance.items(), key=lambda x: abs(x[1]), reverse=True)[:10]
-            # 获取排序后的原始 SHAP 值
-            sorted_features = [(feature, shap_feature_importance[feature]) for feature, _ in sorted_features]
-            # 创建一个字典来保存结果, 包括基础值和前10个特征的贡献值
+            # 创建一个字典来保存结果，包括前10个特征的贡献值
             instance_result = {}
             # 保存前10个特征的名称和贡献值
             for idx, (feature, contribution) in enumerate(sorted_features):
@@ -276,10 +293,10 @@ def main(config_path: str, model_type: str) -> None:
     predict_proba_result = model.predict_proba(X_test)
     y_prob = predict_proba_result[:, 1]
 
-    # 如果model是树模型或者MLP，计算shap值
-    if exp_name in ['decision_tree', 'gbdt', 'random_forest', 'xgboost', 'lightgbm', 'mlp']:
+    # 如果model是树模型，计算shap值
+    if exp_name in ['decision_tree', 'gbdt', 'random_forest', 'xgboost', 'lightgbm']:
         # 计算shap值
-        shap_df = evaluator.calculate_shap_values(model, X_test, y_prob)
+        shap_df = evaluator.calculate_shap_values(model, X_test)
 
         # 用户表添加预测标签和概率
         user_df['预测标签'] = y_pred
@@ -312,5 +329,5 @@ def main(config_path: str, model_type: str) -> None:
 
 if __name__ == "__main__":
     # 加载数据配置
-    config_path = "../../configs/experiments/exp_preview.yaml"
-    main(config_path, 'train')
+    config_path = "/home/qikunlyu/文档/attendclass_predict_project/configs/experiments/target1/model3/tune003_config.yaml"
+    main(config_path, 'tune')

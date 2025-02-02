@@ -35,7 +35,7 @@ def main(config_path: str) -> None:
     parser.add_argument('--step', type=str, choices=['train', 'tune', 'all'],
                       default='all', help='运行的步骤')
     parser.add_argument('--tune_type', type=str, choices=['random', 'grid', 'halving_random', 'halving_grid'], 
-                      default='random', help='使用的搜参方法')
+                      default='grid', help='使用的搜参方法')
     
     args = parser.parse_args()
     
@@ -45,5 +45,5 @@ def main(config_path: str) -> None:
     run_pipeline(args)
 
 if __name__ == "__main__":
-    config_path = "/home/qikunlyu/文档/attendclass_predict_project/configs/experiments/exp_preview.yaml"
+    config_path = "/home/qikunlyu/文档/attendclass_predict_project/configs/experiments/target1/model3/tune003_config.yaml"
     main(config_path)

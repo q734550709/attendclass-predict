@@ -159,13 +159,20 @@ class HyperparameterTuning:
         param_distributions = {}
         for param_name, param_values in search_params.items():
             if isinstance(param_values, np.ndarray) or isinstance(param_values, list):
-                values_type = type(param_values[0]) if len(param_values) > 0 else None
-                if values_type == int:
-                    param_distributions[param_name] = IntDistribution(min(param_values), max(param_values))
-                elif values_type == float:
-                    param_distributions[param_name] = FloatDistribution(min(param_values), max(param_values))
+                if len(param_values) == 0:
+                    raise ValueError(f"Parameter values for {param_name} are empty")
+                values_type = type(param_values[0])
+                if all(isinstance(v, values_type) for v in param_values):
+                    if values_type == int:
+                        param_distributions[param_name] = IntDistribution(low=min(param_values), high=max(param_values))
+                    elif values_type == float:
+                        param_distributions[param_name] = FloatDistribution(low=min(param_values), high=max(param_values))
+                    elif values_type == str:
+                        param_distributions[param_name] = CategoricalDistribution(choices=param_values)
+                    else:
+                        raise ValueError(f"Unsupported type for parameter values: {param_name}")
                 else:
-                    param_distributions[param_name] = CategoricalDistribution(param_values)
+                    raise ValueError(f"Inconsistent types in parameter values for {param_name}")
             else:
                 raise ValueError(f"Unsupported type for parameter values: {param_name}")
         return param_distributions
@@ -261,7 +268,9 @@ class HyperparameterTuning:
         # 保存参数分布箱线图
         for col in params.columns:
             plt.figure()
-            plt.hist(params[col], bins=20)
+            # 过滤掉非数值类型的数据
+            numeric_data = [x for x in params[col] if isinstance(x, (int, float))]
+            plt.hist(numeric_data, bins=20)
             plt.title(f'Histogram of {col}')
             plt.xlabel(col)
             plt.ylabel('Frequency')
@@ -340,19 +349,25 @@ def main(config_path: str, tune_type: str = 'random') -> Tuple[Dict, Dict, float
     # 运行超参数搜索
     best_estimator, best_params, best_score, cv_results = tuner.run(X_train, y_train, tune_type=tune_type)
 
-    # 使用Optuna重要性评估器调优
-    optuna_study = tuner.optuna_study(cv_results, tune_type=tune_type)
-
-    # 绘制并保存Optuna结果
-    tuner.plot_and_save_optuna_result(optuna_study)
-
     # 保存调优器
-    tuner.save_tuner(best_estimator, best_params, best_score, cv_results)
+    # 如果可以调用save_tuner就进行Optuna重要性评估，并且使用HiPlot绘制并保存Optuna结果
+    try:
+        # 尝试调用 tuner.save_tuner 方法
+        tuner.save_tuner(best_estimator, best_params, best_score, cv_results)
+         # 使用Optuna重要性评估器调优
+        optuna_study = tuner.optuna_study(cv_results, tune_type=tune_type)
 
-    logger.info("Hyperparameter tuning completed.")
+        # 绘制并保存Optuna结果
+        tuner.plot_and_save_optuna_result(optuna_study)
 
-    # 移除控制台处理程序
-    logging.getLogger().handlers = []
+        logger.info("Hyperparameter tuning completed.")
+        # 移除控制台处理程序
+        logging.getLogger().handlers = []
+    except Exception as e:
+        # 如果发生任何错误，记录日志并继续执行
+        logger.info(f"Error occurred: {e}, skipping Optuna importance evaluation.")
+        # 移除控制台处理程序
+        logging.getLogger().handlers = []
 
     return best_estimator, best_params, best_score, cv_results
 
