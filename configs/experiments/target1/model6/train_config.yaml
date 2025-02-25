@@ -1,0 +1,139 @@
+# 实验配置文件
+experiment:
+  name: "lightgbm"
+  description: "LightGBM模型实验"
+
+# 实验日志配置
+logging:
+  level: INFO
+  save_path: "../../experiments/target1/model6/train/logs"
+
+# 模型配置
+model:
+  type: "lightgbm"
+  params:
+    max_depth: -1             # 树的最大深度
+    learning_rate: 0.1        # 学习率
+    n_estimators: 100         # 树的数量
+    random_state: 42          # 随机种子
+    objective: "binary"       # 目标函数
+
+# 数据配置
+data:
+  paths:
+    X_train: "../../data/processed/next_one/X_train.csv"
+    y_train: "../../data/processed/next_one/y_train.csv"
+    X_test: "../../data/processed/next_one/X_test.csv"
+    y_test: "../../data/processed/next_one/y_test.csv"
+
+# 交叉验证配置
+cross_validation:
+  n_splits: 5
+
+# 输出配置
+output:
+  exp_dir: "../../experiments/target1/model6/train/metrics"  # 实验输出目录
+  exp_model_dir: "../../models/trained/target1/model6/train"  # 模型输出目录
+
+# 随机搜索参数配置
+random_search_params:
+  param_distributions:
+    num_leaves: [31, 63, 127, 255, 511, 1023]  # 叶子节点数
+    learning_rate: [0.01, 0.05, 0.1, 0.3, 0.5]  # 学习率
+    n_estimators: [100, 200, 300, 400, 500, 600]  # 树的数量
+    max_depth: [3, 4, 5, 6, 7, 8, 9]  # 树的最大深度
+    lambda_l1: [0, 1, 2, 3, 4, 5]  # L1正则化系数
+    lambda_l2: [0, 1, 2, 3, 4, 5]  # L2正则化系数
+    min_child_samples: [20, 30, 40, 50, 60, 70, 80, 90, 100]  # 叶子节点最小样本数
+    subsample: [0.6, 0.7, 0.8, 0.9, 1.0]  # 训练样本采样率
+    feature_fraction: [0.6, 0.7, 0.8, 0.9, 1.0]  # 特征采样率
+    bagging_fraction: [0.6, 0.7, 0.8, 0.9, 1.0]  # 数据采样率
+    bagging_freq: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  # 数据采样频率
+    min_child_weight: [0.0001, 0.001, 0.01, 0.1, 1]  # 叶子节点最小权重
+    min_split_gain: [0, 0.1, 0.2, 0.3, 0.4, 0.5]  # 分裂阈值
+    colsample_bytree: [0.6, 0.7, 0.8, 0.9, 1.0]  # 列采样率
+    early_stopping_rounds: [10, 20, 30, 40, 50]  # 提前停止轮数
+  n_iter: 1000 # 迭代次数
+  scoring: "recall"
+  cv: 5
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True
+
+# 网格搜索参数配置
+grid_search_params:
+  param_grid:
+    num_leaves: [31, 63, 127, 255, 511, 1023]  # 叶子节点数
+    learning_rate: [0.01, 0.05, 0.1, 0.3, 0.5]  # 学习率
+    n_estimators: [100, 200, 300, 400, 500, 600]  # 树的数量
+    max_depth: [3, 4, 5, 6, 7, 8, 9]  # 树的最大深度
+    lambda_l1: [0, 1, 2, 3, 4, 5]  # L1正则化系数
+    lambda_l2: [0, 1, 2, 3, 4, 5]  # L2正则化系数
+    min_child_samples: [20, 30, 40, 50, 60, 70, 80, 90, 100]  # 叶子节点最小样本数
+    subsample: [0.6, 0.7, 0.8, 0.9, 1.0]  # 训练样本采样率
+    feature_fraction: [0.6, 0.7, 0.8, 0.9, 1.0]  # 特征采样率
+    bagging_fraction: [0.6, 0.7, 0.8, 0.9, 1.0]  # 数据采样率
+    bagging_freq: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  # 数据采样频率
+    min_child_weight: [0.0001, 0.001, 0.01, 0.1, 1]  # 叶子节点最小权重
+    min_split_gain: [0, 0.1, 0.2, 0.3, 0.4, 0.5]  # 分裂阈值
+    colsample_bytree: [0.6, 0.7, 0.8, 0.9, 1.0]  # 列采样率
+    early_stopping_rounds: [10, 20, 30, 40, 50]  # 提前停止轮数
+  scoring: "recall"
+  cv: 5
+  n_jobs: -1
+  return_train_score : True
+
+# HalvingRandomSearchCV参数配置
+halving_random_search_params:
+  param_distributions:
+    num_leaves: [31, 63, 127, 255, 511, 1023]  # 叶子节点数
+    learning_rate: [0.01, 0.05, 0.1, 0.3, 0.5]  # 学习率
+    n_estimators: [100, 200, 300, 400, 500, 600]  # 树的数量
+    max_depth: [3, 4, 5, 6, 7, 8, 9]  # 树的最大深度
+    lambda_l1: [0, 1, 2, 3, 4, 5]  # L1正则化系数
+    lambda_l2: [0, 1, 2, 3, 4, 5]  # L2正则化系数
+    min_child_samples: [20, 30, 40, 50, 60, 70, 80, 90, 100]  # 叶子节点最小样本数
+    subsample: [0.6, 0.7, 0.8, 0.9, 1.0]  # 训练样本采样率
+    feature_fraction: [0.6, 0.7, 0.8, 0.9, 1.0]  # 特征采样率
+    bagging_fraction: [0.6, 0.7, 0.8, 0.9, 1.0]  # 数据采样率
+    bagging_freq: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  # 数据采样频率
+    min_child_weight: [0.0001, 0.001, 0.01, 0.1, 1]  # 叶子节点最小权重
+    min_split_gain: [0, 0.1, 0.2, 0.3, 0.4, 0.5]  # 分裂阈值
+    colsample_bytree: [0.6, 0.7, 0.8, 0.9, 1.0]  # 列采样率
+    early_stopping_rounds: [10, 20, 30, 40, 50]  # 提前停止轮数
+  n_candidates: 'exhaust'
+  factor: 2
+  resource: 'n_samples'
+  scoring: "recall"
+  cv: 5
+  refit: True
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True
+
+# HalvingGridSearchCV参数配置
+halving_grid_search_params:
+  param_grid:
+    num_leaves: [31, 63, 127, 255, 511, 1023]  # 叶子节点数
+    learning_rate: [0.01, 0.05, 0.1, 0.3, 0.5]  # 学习率
+    n_estimators: [100, 200, 300, 400, 500, 600]  # 树的数量
+    max_depth: [3, 4, 5, 6, 7, 8, 9]  # 树的最大深度
+    lambda_l1: [0, 1, 2, 3, 4, 5]  # L1正则化系数
+    lambda_l2: [0, 1, 2, 3, 4, 5]  # L2正则化系数
+    min_child_samples: [20, 30, 40, 50, 60, 70, 80, 90, 100]  # 叶子节点最小样本数
+    subsample: [0.6, 0.7, 0.8, 0.9, 1.0]  # 训练样本采样率
+    feature_fraction: [0.6, 0.7, 0.8, 0.9, 1.0]  # 特征采样率
+    bagging_fraction: [0.6, 0.7, 0.8, 0.9, 1.0]  # 数据采样率
+    bagging_freq: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  # 数据采样频率
+    min_child_weight: [0.0001, 0.001, 0.01, 0.1, 1]  # 叶子节点最小权重
+    min_split_gain: [0, 0.1, 0.2, 0.3, 0.4, 0.5]  # 分裂阈值
+    colsample_bytree: [0.6, 0.7, 0.8, 0.9, 1.0]  # 列采样率
+    early_stopping_rounds: [10, 20, 30, 40, 50]  # 提前停止轮数
+  factor: 2
+  resource: 'n_samples'
+  scoring: "recall"
+  cv: 5
+  refit: True
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True

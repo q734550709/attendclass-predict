@@ -1,0 +1,42 @@
+# 报告日志配置
+logging:
+  level: INFO
+  save_path: "../../outputs/predictions/target2/logs"
+
+    
+# 数据配置
+data:
+  paths:
+    X_test: "../../data/processed/next_four/X_test.csv"
+    y_test: "../../data/processed/next_four/y_test.csv"
+
+# 输出配置
+output:
+  output_dir: "../../outputs/metrics/target2"  # 输出目录
+  csv_dir: "../../outputs/predictions/target2"  # 输出csv目录
+
+# 模型配置
+model:
+  model_name:
+  - "logistic_regression"
+  - "decision_tree"
+  - "random_forest"
+  - "gbdt"
+  - "xgboost"
+  - "lightgbm"
+  model_dir:
+  - "../../models/trained/target2/model1/tune001"
+  - "../../models/trained/target2/model2/tune004"
+  - "../../models/trained/target2/model3/tune004"
+  - "../../models/trained/target2/model4/tune004"
+  - "../../models/trained/target2/model5/tune004"
+  - "../../models/trained/target2/model6/tune004"
+
+# 预测结果数据
+prediction:
+  prediction_dir:
+  - "../../experiments/target2/model2/tune004/metrics/tune_evaluate"
+  - "../../experiments/target2/model3/tune004/metrics/tune_evaluate" 
+  - "../../experiments/target2/model4/tune004/metrics/tune_evaluate" 
+  - "../../experiments/target2/model5/tune004/metrics/tune_evaluate"
+  - "../../experiments/target2/model6/tune004/metrics/tune_evaluate"

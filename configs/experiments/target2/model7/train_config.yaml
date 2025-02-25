@@ -1,0 +1,113 @@
+# 实验配置文件
+experiment:
+  name: "mlp"
+  description: "多层感知机模型实验"
+
+# 实验日志配置
+logging:
+  level: INFO
+  save_path: "../../experiments/target2/model7/train/logs"
+
+# 模型配置
+model:
+  type: "mlp"
+  params:
+    hidden_layer_sizes: [100]   # 隐藏层神经元数
+    activation: "relu"          # 激活函数
+    solver: "adam"              # 优化器
+    alpha: 0.0001               # 正则化系数
+    batch_size: "auto"          # 批量大小  
+    learning_rate: "constant"   # 学习率策略
+    max_iter: 200               # 最大迭代次数
+    random_state: 42            # 随机种子
+    early_stopping: True        # 是否使用早停法
+    validation_fraction: 0.2    # 验证集比例
+    n_iter_no_change: 10        # 连续多少次迭代损失不再减小时终止
+
+# 数据配置
+data:
+  paths:
+    X_train: "../../data/processed/next_four/X_train.csv"
+    y_train: "../../data/processed/next_four/y_train.csv"
+    X_test: "../../data/processed/next_four/X_test.csv"
+    y_test: "../../data/processed/next_four/y_test.csv"
+
+# 交叉验证配置
+cross_validation:
+  n_splits: 5
+
+# 输出配置
+output:
+  exp_dir: "../../experiments/target2/model7/train/metrics"  # 实验输出目录
+  exp_model_dir: "../../models/trained/target2/model7/train"  # 模型输出目录
+
+# 随机搜索参数配置
+random_search_params:
+  param_distributions:
+    hidden_layer_sizes: [[1000], [500], [1000, 500], [500, 100], [1000, 500, 100]] # 隐藏层神经元数
+    solver: ["adam", "sgd"] # 优化器
+    alpha: [0.00001, 0.0001, 0.001, 0.01] # 正则化系数
+    batch_size: [32, 64, 128] # 批量大小
+    learning_rate: ["constant", "invscaling", "adaptive"] # 学习率策略
+    max_iter: [100, 300, 500, 1000] # 最大迭代次数
+    learning_rate_init: [0.001, 0.01, 0.1] # 初始学习率
+  n_iter: 100 # 迭代次数
+  scoring: "recall"
+  cv: 5
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True
+
+# 网格搜索参数配置
+grid_search_params:
+  param_grid:
+    hidden_layer_sizes: [[1000], [500], [1000, 500], [500, 100], [1000, 500, 100]] # 隐藏层神经元数
+    solver: ["adam", "sgd"] # 优化器
+    alpha: [0.00001, 0.0001, 0.001, 0.01] # 正则化系数
+    batch_size: [32, 64, 128] # 批量大小
+    learning_rate: ["constant", "invscaling", "adaptive"] # 学习率策略
+    max_iter: [100, 300, 500, 1000] # 最大迭代次数
+    learning_rate_init: [0.001, 0.01, 0.1] # 初始学习率
+  scoring: "recall"
+  cv: 5
+  n_jobs: -1
+  return_train_score : True
+
+# HalvingRandomSearchCV参数配置
+halving_random_search_params:
+  param_distributions:
+    hidden_layer_sizes: [[1000], [500], [1000, 500], [500, 100], [1000, 500, 100]] # 隐藏层神经元数
+    solver: ["adam", "sgd"] # 优化器
+    alpha: [0.00001, 0.0001, 0.001, 0.01] # 正则化系数
+    batch_size: [32, 64, 128] # 批量大小
+    learning_rate: ["constant", "invscaling", "adaptive"] # 学习率策略
+    max_iter: [100, 300, 500, 1000] # 最大迭代次数
+    learning_rate_init: [0.001, 0.01, 0.1] # 初始学习率
+  n_candidates: 'exhaust'
+  factor: 2
+  resource: 'n_samples'
+  scoring: "recall"
+  cv: 5
+  refit: True
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True
+
+# HalvingGridSearchCV参数配置
+halving_grid_search_params:
+  param_grid:
+    hidden_layer_sizes: [[1000], [500], [1000, 500], [500, 100], [1000, 500, 100]] # 隐藏层神经元数
+    solver: ["adam", "sgd"] # 优化器
+    alpha: [0.00001, 0.0001, 0.001, 0.01] # 正则化系数
+    batch_size: [32, 64, 128] # 批量大小
+    learning_rate: ["constant", "invscaling", "adaptive"] # 学习率策略
+    max_iter: [100, 300, 500, 1000] # 最大迭代次数
+    learning_rate_init: [0.001, 0.01, 0.1] # 初始学习率
+  factor: 2
+  resource: 'n_samples'
+  scoring: "recall"
+  cv: 5
+  refit: True
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True

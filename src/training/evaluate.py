@@ -71,6 +71,46 @@ class ModelEvaluator:
             )
             logging.getLogger().addHandler(file_handler)
 
+    def _standardize_feature_names(self, X: pd.DataFrame) -> pd.DataFrame:
+        """标准化特征名称
+        
+        将特征名称中的特殊字符替换为下划线，确保特征名称的一致性
+        
+        Args:
+            X: 输入的特征数据框
+            
+        Returns:
+            pd.DataFrame: 处理后的特征数据框
+        """
+        # 创建一个新的DataFrame，避免修改原始数据
+        X = X.copy()
+        
+        # 特征名称映射字典
+        rename_dict = {}
+        for col in X.columns:
+            # 将特殊字符替换为下划线
+            new_name = col.replace(' ', '_')
+            # 确保不会产生重复的列名
+            if new_name in rename_dict.values():
+                i = 1
+                while f"{new_name}_{i}" in rename_dict.values():
+                    i += 1
+                new_name = f"{new_name}_{i}"
+            rename_dict[col] = new_name
+        
+        # 重命名列
+        X = X.rename(columns=rename_dict)
+        
+        # 记录特征名称的变化
+        if rename_dict:
+            changes = [f"{old} -> {new}" for old, new in rename_dict.items() if old != new]
+            if changes:
+                logger.info("Feature names standardized:")
+                for change in changes:
+                    logger.info(change)
+        
+        return X
+    
     def load_data(self) -> Tuple[pd.DataFrame, pd.Series, pd.DataFrame]:
         """加载测试数据"""
         relative_data_paths = self.config['data']['paths']
@@ -83,6 +123,9 @@ class ModelEvaluator:
         
         # 删除用户id后的数据作为特征
         X_test = X_test.drop(columns=['用户id'])
+
+        # 标准化特征名称
+        X_test = self._standardize_feature_names(X_test)
 
         # 读取标签
         y_test = pd.read_csv(os.path.normpath(os.path.join(self.current_dir, relative_data_paths['y_test']))).squeeze()
@@ -102,14 +145,12 @@ class ModelEvaluator:
         if self.config['experiment']['name'] in ['decision_tree', 'gbdt', 'random_forest', 'xgboost', 'lightgbm']:
             explainer = shap.TreeExplainer(model, X_test)
             explainer_test = explainer(X_test, check_additivity=False)
-        elif self.config['experiment']['name'] == 'mlp':
+        else:
             # 使用 shap.sample 或 shap.kmeans 减少背景数据样本
             background = shap.sample(X_test, 100)  # 选择 100 个样本作为背景数据
-            # 或者使用 shap.kmeans
-            # background = shap.kmeans(X_test, 100)
             explainer = shap.KernelExplainer(model.predict, background)
             explainer_test = explainer.shap_values(X_test)
-            
+
         shap_values = explainer_test.values
         base_values = explainer_test.base_values
 
@@ -329,5 +370,5 @@ def main(config_path: str, model_type: str) -> None:
 
 if __name__ == "__main__":
     # 加载数据配置
-    config_path = "/home/qikunlyu/文档/attendclass_predict_project/configs/experiments/target1/model3/tune003_config.yaml"
-    main(config_path, 'tune')
+    config_path = "/home/qikunlyu/文档/attendclass_predict_project/configs/experiments/target1/model_stack/train_config.yaml"
+    main(config_path, 'train')

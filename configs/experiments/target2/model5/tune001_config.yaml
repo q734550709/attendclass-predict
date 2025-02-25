@@ -1,0 +1,116 @@
+# 实验配置文件
+experiment:
+  name: "xgboost"
+  description: "XGBoost模型实验"
+
+# 实验日志配置
+logging:
+  level: INFO
+  save_path: "../../experiments/target2/model5/tune001/logs"
+
+# 模型配置
+model:
+  type: "xgboost"
+  params:
+    max_depth: 3              # 树的最大深度
+    learning_rate: 0.1        # 学习率
+    n_estimators: 100         # 树的数量
+    random_state: 42          # 随机种子
+    tree_method: "hist"       # 树的方法
+    device: "cuda"            # 设备
+
+# 数据配置
+data:
+  paths:
+    X_train: "../../data/processed/next_four/X_train.csv"
+    y_train: "../../data/processed/next_four/y_train.csv"
+    X_test: "../../data/processed/next_four/X_test.csv"
+    y_test: "../../data/processed/next_four/y_test.csv"
+
+# 交叉验证配置
+cross_validation:
+  n_splits: 5
+
+# 输出配置
+output:
+  exp_dir: "../../experiments/target2/model5/tune001/metrics"  # 实验输出目录
+  exp_model_dir: "../../models/trained/target2/model5/tune001"  # 模型输出目录
+
+# 随机搜索参数配置
+random_search_params:
+  param_distributions:
+    learning_rate: [0.01, 0.05, 0.1, 0.3, 0.5]  # 学习率
+    booster: ['gbtree']  # 提升器类型
+    colsample_bytree: [0.6, 0.7, 0.8, 0.9, 1.0]  # 列采样比例
+    gamma: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]  # gamma值
+    reg_lambda: [0.0, 0.01, 0.1, 1.0, 10.0]  # 正则化参数lambda
+    min_child_weight: [1, 3, 5, 7]  # 子节点最小权重
+    max_depth: [3, 4, 5]  # 树的最大深度
+    reg_alpha: [0.0, 0.01, 0.1, 1.0, 10.0]  # 正则化参数alpha
+    subsample: [0.6, 0.7, 0.8, 0.9, 1.0]  # 子样本比例
+  n_iter: 100 # 迭代次数
+  scoring: "recall"
+  cv: 5
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True
+
+# 网格搜索参数配置
+grid_search_params:
+  param_grid:
+    learning_rate: [0.01, 0.05, 0.1, 0.3, 0.5]  # 学习率
+    booster: ['gbtree']  # 提升器类型
+    colsample_bytree: [0.6, 0.7, 0.8, 0.9, 1.0]  # 列采样比例
+    gamma: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]  # gamma值
+    reg_lambda: [0.0, 0.01, 0.1, 1.0, 10.0]  # 正则化参数lambda
+    min_child_weight: [1, 3, 5, 7]  # 子节点最小权重
+    max_depth: [3, 4, 5]  # 树的最大深度
+    reg_alpha: [0.0, 0.01, 0.1, 1.0, 10.0]  # 正则化参数alpha
+    subsample: [0.6, 0.7, 0.8, 0.9, 1.0]  # 子样本比例
+  scoring: "recall"
+  cv: 5
+  n_jobs: -1
+  return_train_score : True
+
+# HalvingRandomSearchCV参数配置
+halving_random_search_params:
+  param_distributions:
+    learning_rate: [0.01, 0.05, 0.1, 0.3, 0.5]  # 学习率
+    booster: ['gbtree']  # 提升器类型
+    colsample_bytree: [0.6, 0.7, 0.8, 0.9, 1.0]  # 列采样比例
+    gamma: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]  # gamma值
+    reg_lambda: [0.0, 0.01, 0.1, 1.0, 10.0]  # 正则化参数lambda
+    min_child_weight: [1, 3, 5, 7]  # 子节点最小权重
+    max_depth: [3, 4, 5]  # 树的最大深度
+    reg_alpha: [0.0, 0.01, 0.1, 1.0, 10.0]  # 正则化参数alpha
+    subsample: [0.6, 0.7, 0.8, 0.9, 1.0]  # 子样本比例
+  n_candidates: 'exhaust'
+  factor: 2
+  resource: 'n_samples'
+  scoring: "recall"
+  cv: 5
+  refit: True
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True
+
+# HalvingGridSearchCV参数配置
+halving_grid_search_params:
+  param_grid:
+    learning_rate: [0.01, 0.05, 0.1, 0.3, 0.5]  # 学习率
+    booster: ['gbtree']  # 提升器类型
+    colsample_bytree: [0.6, 0.7, 0.8, 0.9, 1.0]  # 列采样比例
+    gamma: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]  # gamma值
+    reg_lambda: [0.0, 0.01, 0.1, 1.0, 10.0]  # 正则化参数lambda
+    min_child_weight: [1, 3, 5, 7]  # 子节点最小权重
+    max_depth: [3, 4, 5]  # 树的最大深度
+    reg_alpha: [0.0, 0.01, 0.1, 1.0, 10.0]  # 正则化参数alpha
+    subsample: [0.6, 0.7, 0.8, 0.9, 1.0]  # 子样本比例
+  factor: 2
+  resource: 'n_samples'
+  scoring: "recall"
+  cv: 5
+  refit: True
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True

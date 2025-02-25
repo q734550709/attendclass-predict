@@ -1,0 +1,44 @@
+2025-02-03 18:21:02,099 - __main__ - INFO - Test data loaded
+2025-02-03 18:21:02,177 - __main__ - INFO - Test evaluation results:             model_name  accuracy  precision  recall        f1   auc_roc
+0  logistic_regression  0.510959   0.393869  0.6683  0.495632  0.563944
+2025-02-03 18:21:02,180 - __main__ - INFO - Prediction statistics:    total_predictions  attendance_count attendance_rate average_confidence confidence_std  high_confidence_predictions  low_confidence_predictions
+0              35770           21822.0          61.01%             49.94%          2.34%                            5                       35534
+2025-02-03 18:21:02,278 - __main__ - INFO - Confusion matrix saved to /home/qikunlyu/文档/attendclass_predict_project/src/inference/../../outputs/metrics/target2/logistic_regression_confusion_matrix.png
+2025-02-03 18:21:02,316 - __main__ - INFO - ROC curve saved to /home/qikunlyu/文档/attendclass_predict_project/src/inference/../../outputs/metrics/target2/logistic_regression_roc_curve.png
+2025-02-03 18:21:02,398 - __main__ - INFO - Test evaluation results:       model_name  accuracy  precision    recall        f1   auc_roc
+0  decision_tree  0.558736   0.418927  0.587202  0.488992  0.593451
+2025-02-03 18:21:02,401 - __main__ - INFO - Prediction statistics:    total_predictions  attendance_count attendance_rate average_confidence confidence_std  high_confidence_predictions  low_confidence_predictions
+0              35770           18027.0          50.40%             49.64%          8.34%                           55                       32185
+2025-02-03 18:21:02,449 - __main__ - INFO - Confusion matrix saved to /home/qikunlyu/文档/attendclass_predict_project/src/inference/../../outputs/metrics/target2/decision_tree_confusion_matrix.png
+2025-02-03 18:21:02,483 - __main__ - INFO - ROC curve saved to /home/qikunlyu/文档/attendclass_predict_project/src/inference/../../outputs/metrics/target2/decision_tree_roc_curve.png
+2025-02-03 18:21:02,569 - __main__ - INFO - Test evaluation results:       model_name  accuracy  precision   recall        f1   auc_roc
+0  random_forest  0.591361   0.453238  0.66169  0.537978  0.637992
+2025-02-03 18:21:02,571 - __main__ - INFO - Prediction statistics:    total_predictions  attendance_count attendance_rate average_confidence confidence_std  high_confidence_predictions  low_confidence_predictions
+0              35770           18776.0          52.49%             49.45%          7.45%                            0                       32688
+2025-02-03 18:21:02,620 - __main__ - INFO - Confusion matrix saved to /home/qikunlyu/文档/attendclass_predict_project/src/inference/../../outputs/metrics/target2/random_forest_confusion_matrix.png
+2025-02-03 18:21:02,655 - __main__ - INFO - ROC curve saved to /home/qikunlyu/文档/attendclass_predict_project/src/inference/../../outputs/metrics/target2/random_forest_roc_curve.png
+2025-02-03 18:21:02,913 - __main__ - INFO - Test evaluation results:   model_name  accuracy  precision   recall        f1   auc_roc
+0       gbdt  0.637434   0.496324  0.56683  0.529239  0.673601
+2025-02-03 18:21:02,915 - __main__ - INFO - Prediction statistics:    total_predictions  attendance_count attendance_rate average_confidence confidence_std  high_confidence_predictions  low_confidence_predictions
+0              35770           14688.0          41.06%             48.47%         15.42%                          372                       16678
+2025-02-03 18:21:02,961 - __main__ - INFO - Confusion matrix saved to /home/qikunlyu/文档/attendclass_predict_project/src/inference/../../outputs/metrics/target2/gbdt_confusion_matrix.png
+2025-02-03 18:21:02,998 - __main__ - INFO - ROC curve saved to /home/qikunlyu/文档/attendclass_predict_project/src/inference/../../outputs/metrics/target2/gbdt_roc_curve.png
+2025-02-03 18:21:03,546 - __main__ - INFO - Test evaluation results:   model_name  accuracy  precision    recall        f1   auc_roc
+0    xgboost  0.608862   0.464236  0.570251  0.511811  0.642004
+2025-02-03 18:21:03,549 - __main__ - INFO - Prediction statistics:    total_predictions  attendance_count attendance_rate average_confidence confidence_std  high_confidence_predictions  low_confidence_predictions
+0              35770             15798          44.17%             47.99%         26.14%                         4877                        8646
+2025-02-03 18:21:03,599 - __main__ - INFO - Confusion matrix saved to /home/qikunlyu/文档/attendclass_predict_project/src/inference/../../outputs/metrics/target2/xgboost_confusion_matrix.png
+2025-02-03 18:21:03,635 - __main__ - INFO - ROC curve saved to /home/qikunlyu/文档/attendclass_predict_project/src/inference/../../outputs/metrics/target2/xgboost_roc_curve.png
+2025-02-03 18:21:03,913 - __main__ - INFO - Test evaluation results:   model_name  accuracy  precision    recall       f1   auc_roc
+0   lightgbm  0.610428   0.466488  0.581215  0.51757  0.650523
+2025-02-03 18:21:03,915 - __main__ - INFO - Prediction statistics:    total_predictions  attendance_count attendance_rate average_confidence confidence_std  high_confidence_predictions  low_confidence_predictions
+0              35770           16024.0          44.80%             47.69%         28.54%                         6767                        7257
+2025-02-03 18:21:03,965 - __main__ - INFO - Confusion matrix saved to /home/qikunlyu/文档/attendclass_predict_project/src/inference/../../outputs/metrics/target2/lightgbm_confusion_matrix.png
+2025-02-03 18:21:04,001 - __main__ - INFO - ROC curve saved to /home/qikunlyu/文档/attendclass_predict_project/src/inference/../../outputs/metrics/target2/lightgbm_roc_curve.png
+2025-02-03 18:21:05,738 - __main__ - INFO - Test evaluation results:   model_name  accuracy  precision    recall        f1   auc_roc
+0   ensemble  0.628332   0.488298  0.607366  0.541363  0.677368
+2025-02-03 18:21:05,741 - __main__ - INFO - Prediction statistics:    total_predictions  attendance_count attendance_rate average_confidence confidence_std  high_confidence_predictions  low_confidence_predictions
+0              35860             16109          44.92%             48.64%         13.61%                          100                       18515
+2025-02-03 18:21:05,788 - __main__ - INFO - Confusion matrix saved to /home/qikunlyu/文档/attendclass_predict_project/src/inference/../../outputs/metrics/target2/ensemble_confusion_matrix.png
+2025-02-03 18:21:05,825 - __main__ - INFO - ROC curve saved to /home/qikunlyu/文档/attendclass_predict_project/src/inference/../../outputs/metrics/target2/ensemble_roc_curve.png
+2025-02-03 18:21:05,825 - __main__ - INFO - Evaluation completed

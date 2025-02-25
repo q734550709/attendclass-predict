@@ -1,0 +1,103 @@
+# 实验配置文件
+experiment:
+  name: "gbdt"
+  description: "GBDT模型实验"
+
+# 实验日志配置
+logging:
+  level: INFO
+  save_path: "../../experiments/target2/model4/tune003/logs"
+
+# 模型配置
+model:
+  type: "gbdt"
+  params:
+    loss: "log_loss"          # 损失函数
+    learning_rate: 0.1        # 学习率
+    n_estimators: 100         # 树的数量
+    max_depth: 3              # 树的最大深度
+    random_state: 42          # 随机种子
+    validation_fraction: 0.1  # 验证集比例
+    n_iter_no_change: 10      # 连续多少次迭代损失不再减小时停止训练
+    max_features: "sqrt"      # 最大特征数
+    min_impurity_decrease: 0.0001  # 最小不纯度减少值
+
+# 数据配置
+data:
+  paths:
+    X_train: "../../data/processed/next_four/X_train.csv"
+    y_train: "../../data/processed/next_four/y_train.csv"
+    X_test: "../../data/processed/next_four/X_test.csv"
+    y_test: "../../data/processed/next_four/y_test.csv"
+
+# 交叉验证配置
+cross_validation:
+  n_splits: 5
+
+# 输出配置
+output:
+  exp_dir: "../../experiments/target2/model4/tune003/metrics"  # 实验输出目录
+  exp_model_dir: "../../models/trained/target2/model4/tune003"  # 模型输出目录
+
+# 随机搜索参数配置
+random_search_params:
+  param_distributions:
+    n_estimators: range(50,151,10)  # 树的数量
+    subsample: [0.1,0.2,0.3,0.4] # 子样本比例
+    max_depth: range(3,8)  # 树的最大深度
+    min_samples_leaf: range(1,10)  # 叶子节点最小样本数
+    min_samples_split: range(25,36)  # 内部节点再划分所需最小样本数
+  n_iter: 100 # 迭代次数
+  scoring: "recall"
+  cv: 5
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True
+
+# 网格搜索参数配置
+grid_search_params:
+  param_grid:
+    n_estimators: range(50,151,10)  # 树的数量
+    subsample: [0.1,0.2,0.3,0.4] # 子样本比例
+    max_depth: range(3,8)  # 树的最大深度
+    min_samples_leaf: range(1,10)  # 叶子节点最小样本数
+    min_samples_split: range(25,36)  # 内部节点再划分所需最小样本数
+  scoring: "recall"
+  cv: 5
+  n_jobs: -1
+  return_train_score : True
+
+# HalvingRandomSearchCV参数配置
+halving_random_search_params:
+  param_distributions:
+    n_estimators: range(50,151,10)  # 树的数量
+    subsample: [0.1,0.2,0.3,0.4] # 子样本比例
+    max_depth: range(3,8)  # 树的最大深度
+    min_samples_leaf: range(1,10)  # 叶子节点最小样本数
+    min_samples_split: range(25,36)  # 内部节点再划分所需最小样本数
+  n_candidates: 'exhaust'
+  factor: 2
+  resource: 'n_samples'
+  scoring: "recall"
+  cv: 5
+  refit: True
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True
+
+# HalvingGridSearchCV参数配置
+halving_grid_search_params:
+  param_grid:
+    n_estimators: range(50,151,10)  # 树的数量
+    subsample: [0.1,0.2,0.3,0.4] # 子样本比例
+    max_depth: range(3,8)  # 树的最大深度
+    min_samples_leaf: range(1,10)  # 叶子节点最小样本数
+    min_samples_split: range(25,36)  # 内部节点再划分所需最小样本数
+  factor: 2
+  resource: 'n_samples'
+  scoring: "recall"
+  cv: 5
+  refit: True
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True

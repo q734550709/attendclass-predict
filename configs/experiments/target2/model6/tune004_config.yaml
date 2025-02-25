@@ -1,0 +1,93 @@
+# 实验配置文件
+experiment:
+  name: "lightgbm"
+  description: "LightGBM模型实验"
+
+# 实验日志配置
+logging:
+  level: INFO
+  save_path: "../../experiments/target2/model6/tune004/logs"
+
+# 模型配置
+model:
+  type: "lightgbm"
+  params:
+    max_depth: -1             # 树的最大深度
+    learning_rate: 0.1        # 学习率
+    n_estimators: 100         # 树的数量
+    random_state: 42          # 随机种子
+    objective: "binary"       # 目标函数
+    num_leaves: 255           # 叶子节点数
+    lambda_l2: 3              # L2正则化系数
+
+# 数据配置
+data:
+  paths:
+    X_train: "../../data/processed/next_four/X_train.csv"
+    y_train: "../../data/processed/next_four/y_train.csv"
+    X_test: "../../data/processed/next_four/X_test.csv"
+    y_test: "../../data/processed/next_four/y_test.csv"
+
+# 交叉验证配置
+cross_validation:
+  n_splits: 5
+
+# 输出配置
+output:
+  exp_dir: "../../experiments/target2/model6/tune004/metrics"  # 实验输出目录
+  exp_model_dir: "../../models/trained/target2/model6/tune004"  # 模型输出目录
+
+# 随机搜索参数配置
+random_search_params:
+  param_distributions:
+    learning_rate: [0.3, 0.4, 0.5, 0.6]  # 学习率
+    n_estimators: [100, 200, 300, 400, 500, 600, 700]  # 树的数量
+    max_depth: [4, 5, 6, 7, 8, 9, 10]  # 树的最大深度
+  n_iter: 100 # 迭代次数
+  scoring: "recall"
+  cv: 5
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True
+
+# 网格搜索参数配置
+grid_search_params:
+  param_grid:
+    learning_rate: [0.3, 0.4, 0.5, 0.6]  # 学习率
+    n_estimators: [100, 200, 300, 400, 500, 600, 700]  # 树的数量
+    max_depth: [4, 5, 6, 7, 8, 9, 10]  # 树的最大深度
+  scoring: "recall"
+  cv: 5
+  n_jobs: -1
+  return_train_score : True
+
+# HalvingRandomSearchCV参数配置
+halving_random_search_params:
+  param_distributions:
+    learning_rate: [0.3, 0.4, 0.5, 0.6]  # 学习率
+    n_estimators: [100, 200, 300, 400, 500, 600, 700]  # 树的数量
+    max_depth: [4, 5, 6, 7, 8, 9, 10]  # 树的最大深度
+  n_candidates: 'exhaust'
+  factor: 2
+  resource: 'n_samples'
+  scoring: "recall"
+  cv: 5
+  refit: True
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True
+
+# HalvingGridSearchCV参数配置
+halving_grid_search_params:
+  param_grid:
+    learning_rate: [0.3, 0.4, 0.5, 0.6]  # 学习率
+    n_estimators: [100, 200, 300, 400, 500, 600, 700]  # 树的数量
+    max_depth: [4, 5, 6, 7, 8, 9, 10]  # 树的最大深度
+  factor: 2
+  resource: 'n_samples'
+  scoring: "recall"
+  cv: 5
+  refit: True
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True

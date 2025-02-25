@@ -1,0 +1,103 @@
+# 实验配置文件
+experiment:
+  name: "lightgbm"
+  description: "LightGBM模型实验"
+
+# 实验日志配置
+logging:
+  level: INFO
+  save_path: "../../experiments/target1/model6/tune002/logs"
+
+# 模型配置
+model:
+  type: "lightgbm"
+  params:
+    max_depth: -1             # 树的最大深度
+    learning_rate: 0.1        # 学习率
+    n_estimators: 100         # 树的数量
+    random_state: 42          # 随机种子
+    objective: "binary"       # 目标函数
+
+# 数据配置
+data:
+  paths:
+    X_train: "../../data/processed/next_one/X_train.csv"
+    y_train: "../../data/processed/next_one/y_train.csv"
+    X_test: "../../data/processed/next_one/X_test.csv"
+    y_test: "../../data/processed/next_one/y_test.csv"
+
+# 交叉验证配置
+cross_validation:
+  n_splits: 5
+
+# 输出配置
+output:
+  exp_dir: "../../experiments/target1/model6/tune002/metrics"  # 实验输出目录
+  exp_model_dir: "../../models/trained/target1/model6/tune002"  # 模型输出目录
+
+# 随机搜索参数配置
+random_search_params:
+  param_distributions:
+    num_leaves: [127, 255, 511]  # 叶子节点数
+    learning_rate: [0.1, 0.2, 0.3, 0.4, 0.5]  # 学习率
+    n_estimators: [100, 200, 300, 400]  # 树的数量
+    max_depth: [3, 4, 5, 6, 7]  # 树的最大深度
+    lambda_l1: [3, 4, 5]  # L1正则化系数
+    lambda_l2: [2, 3, 4]  # L2正则化系数
+  n_iter: 100 # 迭代次数
+  scoring: "recall"
+  cv: 5
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True
+
+# 网格搜索参数配置
+grid_search_params:
+  param_grid:
+    num_leaves: [127, 255, 511]  # 叶子节点数
+    learning_rate: [0.1, 0.2, 0.3, 0.4, 0.5]  # 学习率
+    n_estimators: [100, 200, 300, 400]  # 树的数量
+    max_depth: [3, 4, 5, 6, 7]  # 树的最大深度
+    lambda_l1: [3, 4, 5]  # L1正则化系数
+    lambda_l2: [2, 3, 4]  # L2正则化系数
+  scoring: "recall"
+  cv: 5
+  n_jobs: -1
+  return_train_score : True
+
+# HalvingRandomSearchCV参数配置
+halving_random_search_params:
+  param_distributions:
+    num_leaves: [127, 255, 511]  # 叶子节点数
+    learning_rate: [0.1, 0.2, 0.3, 0.4, 0.5]  # 学习率
+    n_estimators: [100, 200, 300, 400]  # 树的数量
+    max_depth: [3, 4, 5, 6, 7]  # 树的最大深度
+    lambda_l1: [3, 4, 5]  # L1正则化系数
+    lambda_l2: [2, 3, 4]  # L2正则化系数
+  n_candidates: 'exhaust'
+  factor: 2
+  resource: 'n_samples'
+  scoring: "recall"
+  cv: 5
+  refit: True
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True
+
+# HalvingGridSearchCV参数配置
+halving_grid_search_params:
+  param_grid:
+    num_leaves: [127, 255, 511]  # 叶子节点数
+    learning_rate: [0.1, 0.2, 0.3, 0.4, 0.5]  # 学习率
+    n_estimators: [100, 200, 300, 400]  # 树的数量
+    max_depth: [3, 4, 5, 6, 7]  # 树的最大深度
+    lambda_l1: [3, 4, 5]  # L1正则化系数
+    lambda_l2: [2, 3, 4]  # L2正则化系数
+  factor: 2
+  resource: 'n_samples'
+  scoring: "recall"
+  cv: 5
+  refit: True
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True

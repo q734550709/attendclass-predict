@@ -17,6 +17,9 @@ import yaml
 import logging
 import joblib
 from typing import Dict, List, Tuple, Any
+from sklearn.pipeline import Pipeline
+from sklearn.feature_selection import SelectFromModel
+from sklearn.ensemble import StackingClassifier
 
 
 # 设置日志
@@ -79,10 +82,114 @@ class ModelTrainer:
             logging.getLogger().addHandler(file_handler)
 
     def _initialize_model(self) -> Any:
-        """初始化模型"""
+        """初始化模型
+        
+        根据配置文件初始化单一模型或多层模型（Stacking）
+        
+        Returns:
+            Any: 初始化好的模型实例
+        """
         model_config = self.config['model']
-        return ModelFactory.create_model(model_config['type'], model_config['params'])
+        
+        # 判断是否使用多层模型
+        if model_config.get('is_stacking', False):
+            return self._initialize_stacking_model(model_config)
+        else:
+            return self._initialize_single_model(model_config)
     
+    def _initialize_single_model(self, model_config: dict) -> Any:
+        """初始化单一模型
+        
+        Args:
+            model_config: 模型配置字典
+            
+        Returns:
+            Any: 初始化好的单一模型实例
+        """
+        single_model_config = model_config
+        return ModelFactory.create_model(single_model_config['type'], single_model_config['params'])
+    
+    def _initialize_stacking_model(self, model_config: dict) -> Pipeline:
+        """初始化多层模型（Stacking）
+        
+        Args:
+            model_config: 模型配置字典
+            
+        Returns:
+            Pipeline: 包含特征选择和堆叠模型的管道
+        """
+        steps = []
+        
+        # 1. 添加特征选择器（如果启用）
+        if model_config.get('feature_selector', {}).get('enabled', False):
+            selector_config = model_config['feature_selector']
+            feature_selector = SelectFromModel(
+                ModelFactory.create_model(selector_config['type'], selector_config['params']),
+                threshold=selector_config.get('threshold', 'mean')
+            )
+            steps.append(('feature_selection', feature_selector))
+        
+        # 2. 构建基础模型列表
+        estimators = []
+        for base_model in model_config['base_models']:
+            model = ModelFactory.create_model(base_model['type'], base_model['params'])
+            estimators.append((base_model['name'], model))
+        
+        # 3. 构建元学习器
+        meta_config = model_config['meta_learner']
+        final_estimator = ModelFactory.create_model(meta_config['type'], meta_config['params'])
+        
+        # 4. 构建Stacking模型
+        stacking = StackingClassifier(
+            estimators=estimators,
+            final_estimator=final_estimator,
+            cv=self.config.get('cross_validation', {}).get('n_splits', 5)
+        )
+        steps.append(('stacking', stacking))
+        
+        # 5. 返回完整的管道
+        return Pipeline(steps)
+    
+    def _standardize_feature_names(self, X: pd.DataFrame) -> pd.DataFrame:
+        """标准化特征名称
+        
+        将特征名称中的特殊字符替换为下划线，确保特征名称的一致性
+        
+        Args:
+            X: 输入的特征数据框
+            
+        Returns:
+            pd.DataFrame: 处理后的特征数据框
+        """
+        # 创建一个新的DataFrame，避免修改原始数据
+        X = X.copy()
+        
+        # 特征名称映射字典
+        rename_dict = {}
+        for col in X.columns:
+            # 将特殊字符替换为下划线
+            new_name = col.replace(' ', '_')
+            # 确保不会产生重复的列名
+            if new_name in rename_dict.values():
+                i = 1
+                while f"{new_name}_{i}" in rename_dict.values():
+                    i += 1
+                new_name = f"{new_name}_{i}"
+            rename_dict[col] = new_name
+        
+        # 重命名列
+        X = X.rename(columns=rename_dict)
+        
+        # 记录特征名称的变化
+        if rename_dict:
+            changes = [f"{old} -> {new}" for old, new in rename_dict.items() if old != new]
+            if changes:
+                logger.info("Feature names standardized:")
+                for change in changes:
+                    logger.info(change)
+        
+        return X
+
     def load_data(self) -> Tuple[pd.DataFrame, pd.Series, pd.Series]:
         """加载训练数据"""
         relative_data_path = self.config['data']['paths']
@@ -93,6 +200,9 @@ class ModelTrainer:
         user_ids = X_train['用户id']
         # 删除用户id后的数据作为特征
         X_train = X_train.drop(columns=['用户id'])
+        
+        # 标准化特征名称
+        X_train = self._standardize_feature_names(X_train)
 
         # 读取标签
         y_train = pd.read_csv(os.path.normpath(os.path.join(self.current_dir, relative_data_path['y_train']))).squeeze()

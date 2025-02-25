@@ -57,7 +57,7 @@ for target in "${targets[@]}"; do
     model="model${model_num}"
 
     # 检查是否需要跳过
-    if [[ "${target}" == "target1" && "${model}" == "model2" ]]; then
+    if [[ "${target}" == "target1" && "${model}" == "model4" ]]; then
       start_running=true
     fi
 

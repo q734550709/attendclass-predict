@@ -9,12 +9,12 @@
 ### 硬件环境
 - CPU: Intel Core i7-10700K
 - RAM: 32GB DDR4
-- GPU: NVIDIA RTX 3080 (如果使用)
+- GPU: NVIDIA RTX 4090 (如果使用)
 - Storage: 1TB NVMe SSD
 
 ### 软件环境
-- OS: Ubuntu 20.04 LTS
-- Python: 3.8.10
+- OS: Ubuntu 24.04 LTS
+- Python: 3.12.2
 - scikit-learn: 0.24.2
 - XGBoost: 1.4.2
 - pandas: 1.3.0

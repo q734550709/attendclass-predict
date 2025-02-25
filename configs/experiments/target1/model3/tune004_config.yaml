@@ -1,0 +1,90 @@
+# 实验配置文件
+experiment:
+  name: "random_forest"
+  description: "随机森林模型实验"
+
+# 实验日志配置
+logging:
+  level: INFO
+  save_path: "../../experiments/target1/model3/tune004/logs"
+
+# 模型配置
+model:
+  type: "random_forest"
+  params:
+    n_estimators: 100          # 树的数量
+    criterion: "gini"          # 划分标准
+    max_depth:                 # 树的最大深度
+    random_state: 42           # 随机种子
+    min_impurity_decrease: 0.00001  # 最小不纯度减少值
+    min_samples_leaf: 17      # 叶子节点最小样本数
+    min_samples_split: 94     # 内部节点最小样本数
+    max_features: 0.85        # 最大特征数
+
+# 数据配置
+data:
+  paths:
+    X_train: "../../data/processed/next_one/X_train.csv"
+    y_train: "../../data/processed/next_one/y_train.csv"
+    X_test: "../../data/processed/next_one/X_test.csv"
+    y_test: "../../data/processed/next_one/y_test.csv"
+
+# 交叉验证配置
+cross_validation:
+  n_splits: 5
+
+# 输出配置
+output:
+  exp_dir: "../../experiments/target1/model3/tune004/metrics"  # 实验输出目录
+  exp_model_dir: "../../models/trained/target1/model3/tune004"  # 模型输出目录
+
+# 随机搜索参数配置
+random_search_params:
+  param_distributions:
+    n_estimators: range(160,180)
+    max_depth: range(10,16)
+  n_iter: 100 # 迭代次数
+  scoring: "recall"
+  cv: 5
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True
+
+# 网格搜索参数配置
+grid_search_params:
+  param_grid:
+    n_estimators: range(160,180)
+    max_depth: range(10,16)
+  scoring: "recall"
+  cv: 5
+  n_jobs: -1
+  return_train_score : True
+
+# HalvingRandomSearchCV参数配置
+halving_random_search_params:
+  param_distributions:
+    n_estimators: range(160,180)
+    max_depth: range(10,16)
+  n_candidates: 'exhaust'
+  factor: 2
+  resource: 'n_samples'
+  scoring: "recall"
+  cv: 5
+  refit: True
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True
+
+# HalvingGridSearchCV参数配置
+halving_grid_search_params:
+  param_grid:
+    n_estimators: range(160,180)
+    max_depth: range(10,16)
+  factor: 2
+  resource: 'n_samples'
+  scoring: "recall"
+  cv: 5
+  refit: True
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True

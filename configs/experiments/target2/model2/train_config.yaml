@@ -1,0 +1,106 @@
+# 实验配置文件
+experiment:
+  name: "decision_tree"
+  description: "决策树模型实验"
+
+# 实验日志配置
+logging:
+  level: INFO
+  save_path: "../../experiments/target2/model2/train/logs"
+
+# 模型配置
+model:
+  type: "decision_tree"
+  params:
+    criterion: "gini"          # 划分标准
+    splitter: "best"           # 划分策略
+    max_depth:                 # 树的最大深度
+    random_state: 42           # 随机种子
+    
+# 数据配置
+data:
+  paths:
+    X_train: "../../data/processed/next_four/X_train.csv"
+    y_train: "../../data/processed/next_four/y_train.csv"
+    X_test: "../../data/processed/next_four/X_test.csv"
+    y_test: "../../data/processed/next_four/y_test.csv"
+
+# 交叉验证配置
+cross_validation:
+  n_splits: 5
+
+# 输出配置
+output:
+  exp_dir: "../../experiments/target2/model2/train/metrics"  # 实验输出目录
+  exp_model_dir: "../../models/trained/target2/model2/train"  # 模型输出目录
+
+# 随机搜索参数配置
+random_search_params:
+  param_distributions:
+    criterion: ["gini","entropy"]
+    max_depth: range(3,30,2)
+    min_samples_leaf: range(10,60,10)
+    min_samples_split: range(20,200,20)
+    splitter: ["best","random"]
+    max_features: ["auto","sqrt","log2"]
+    min_impurity_decrease: [0.0, 0.0001, 0.001, 0.01, 0.1]
+  n_iter: 100 # 迭代次数
+  scoring: "recall"
+  cv: 5
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True
+
+# 网格搜索参数配置
+grid_search_params:
+  param_grid:
+    criterion: ["gini","entropy"]
+    max_depth: range(3,30,2)
+    min_samples_leaf: range(10,60,10)
+    min_samples_split: range(20,200,20)
+    splitter: ["best","random"]
+    max_features: ["auto","sqrt","log2"]
+    min_impurity_decrease: [0.0, 0.0001, 0.001, 0.01, 0.1]
+  scoring: "recall"
+  cv: 5
+  n_jobs: -1
+  return_train_score : True
+
+# HalvingRandomSearchCV参数配置
+halving_random_search_params:
+  param_distributions:
+    criterion: ["gini","entropy"]
+    max_depth: range(3,30,2)
+    min_samples_leaf: range(10,60,10)
+    min_samples_split: range(20,200,20)
+    splitter: ["best","random"]
+    max_features: ["auto","sqrt","log2"]
+    min_impurity_decrease: [0.0, 0.0001, 0.001, 0.01, 0.1]
+  n_candidates: 'exhaust'
+  factor: 2
+  resource: 'n_samples'
+  scoring: "recall"
+  cv: 5
+  refit: True
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True
+
+# HalvingGridSearchCV参数配置
+halving_grid_search_params:
+  param_grid:
+    criterion: ["gini","entropy"]
+    max_depth: range(3,30,2)
+    min_samples_leaf: range(10,60,10)
+    min_samples_split: range(20,200,20)
+    splitter: ["best","random"]
+    max_features: ["auto","sqrt","log2"]
+    min_impurity_decrease: [0.0, 0.0001, 0.001, 0.01, 0.1]
+  factor: 2
+  resource: 'n_samples'
+  scoring: "recall"
+  cv: 5
+  refit: True
+  n_jobs: -1
+  random_state: 42
+  return_train_score : True
